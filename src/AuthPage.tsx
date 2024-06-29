@@ -52,9 +52,9 @@ export default function AuthPage() {
   );
 
   return (
-    <div className="flex flex-col py-32 gap-8">
+    <div className="flex flex-col py-16 md:py-32 md:gap-8">
       <h1 className="text-center text-6xl font-mono">rolodex</h1>
-      <div className="grid grid-cols-[16rem,min-content,16rem] w-full p-4 place-content-center gap-4 font-display">
+      <div className="grid grid-cols-1 md:grid-cols-[16rem,min-content,16rem] w-full p-4 place-content-center md:gap-4 font-display">
         <form className="flex flex-col gap-4 py-4" onSubmit={handleLogin}>
           <h2 className="text-center text-3xl">Log In</h2>
           <input
@@ -75,9 +75,9 @@ export default function AuthPage() {
           >
             continue <FontAwesomeIcon icon={faArrowRight} />
           </button>
-          <span className="italic text-red-600 h-6">{loginError}</span>
+          <span className="italic text-red-600 md:h-6">{loginError}</span>
         </form>
-        <div className="w-px bg-black h-full rounded-full" />
+        <div className="hidden md:block w-px bg-black h-full rounded-full" />
         <form className="flex flex-col gap-4 py-4" onSubmit={handleSignUp}>
           <h2 className="text-center text-3xl">Sign Up</h2>
           <input
@@ -98,7 +98,7 @@ export default function AuthPage() {
           >
             create account
           </button>
-          <span className="italic text-red-600 h-6">{signupError}</span>
+          <span className="italic text-red-600 md:h-6">{signupError}</span>
         </form>
       </div>
     </div>

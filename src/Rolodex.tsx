@@ -42,7 +42,7 @@ const SORTS: Sort[] = [
 
 function GridView({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,350px)] gap-4 p-4 justify-center">
+    <div className="grid grid-cols-[repeat(auto-fit,350px)] gap-4 py-4 justify-center">
       {children}
     </div>
   );
@@ -134,7 +134,7 @@ export default function Rolodex() {
   const [query, setQuery] = useState("");
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full p-2">
       <div className="mt-4 flex flex-col max-w-3xl mx-auto p-4 rounded-2xl bg-gray-200 font-display gap-2 w-full">
         <div className="flex flex-row w-full justify-between">
           <h1 className="font-mono text-3xl">rolodex</h1>
@@ -148,7 +148,7 @@ export default function Rolodex() {
             </button>
           </div>
         </div>
-        <div className="flex flex-row w-full justify-between">
+        <div className="flex flex-col md:flex-row w-full justify-between gap-2">
           <div className="flex flex-row rounded-xl bg-white p-1">
             <span className="px-2 py-1">View as</span>
             {VIEWS.map((s) => (
