@@ -115,7 +115,7 @@ export default function Card({
         </p>
         <div className="relative">
           <input
-            className="text-3xl -my-1 bg-transparent peer outline-none"
+            className="text-3xl -my-1 bg-transparent peer outline-none ml-0.5"
             value={displayName}
             onChange={(e) => setDraftName(e.target.value)}
             onKeyDown={handleInputKeyDown}

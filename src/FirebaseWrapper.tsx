@@ -7,7 +7,7 @@ export const FirebaseContext = React.createContext<{
   app: FirebaseApp;
   auth: Auth;
   db: Firestore;
-  user: User | null;
+  user: User | null | undefined;
 }>(null!);
 
 export default function FirebaseWrapper({
@@ -32,7 +32,7 @@ export default function FirebaseWrapper({
     return { app, auth, db };
   }, []);
 
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null | undefined>(undefined);
 
   useEffect(() => {
     // onAuthStateChanged returns an unsubscribe function

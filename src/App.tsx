@@ -8,7 +8,9 @@ export default function App() {
 
   if (user) {
     return <Rolodex />;
-  } else {
+  } else if (user === null) {
     return <AuthPage />;
+  } else {
+    return <div />;
   }
 }

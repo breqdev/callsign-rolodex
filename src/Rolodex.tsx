@@ -86,20 +86,24 @@ export default function Rolodex() {
   });
   const [sort, setSort] = useLocalStorageState("sort", { defaultValue: 0 });
 
-  const [cards, setCards] = useState<(Contact & { id: string })[]>([]);
+  const [cards, setCards] = useState<(Contact & { id: string })[] | null>(null);
 
   useEffect(() => {
-    getDocs(collection(db, `users/${user?.uid}/contacts`)).then((snapshot) => {
-      setCards(
-        snapshot.docs.map((doc) => {
-          const data = doc.data() as Contact;
-          return {
-            ...data,
-            id: doc.id,
-          };
-        })
-      );
-    });
+    getDocs(collection(db, `users/${user?.uid}/contacts`))
+      .then((snapshot) => {
+        setCards(
+          snapshot.docs.map((doc) => {
+            const data = doc.data() as Contact;
+            return {
+              ...data,
+              id: doc.id,
+            };
+          })
+        );
+      })
+      .catch((error) => {
+        console.error("Error getting documents: ", error);
+      });
   }, [db, user]);
 
   const createCard = useCallback(
@@ -107,7 +111,7 @@ export default function Rolodex() {
       addDoc(collection(db, `users/${user?.uid}/contacts`), c)
         .then((doc) => {
           const card = { ...c, id: doc.id };
-          setCards([...cards, card]);
+          setCards(cards !== null ? [...cards, card] : null);
         })
         .catch((error) => {
           console.error("Error adding document: ", error);
@@ -121,12 +125,12 @@ export default function Rolodex() {
       setDoc(doc(db, `users/${user?.uid}/contacts/${old_card.id}`), new_card)
         .then(() => {
           setCards(
-            cards.map((card) => {
+            cards?.map((card) => {
               if (card.id === old_card.id) {
                 return { ...new_card, id: old_card.id };
               }
               return card;
-            })
+            }) ?? null
           );
         })
         .catch((error) => {
@@ -138,10 +142,9 @@ export default function Rolodex() {
 
   const makeDeleteHandler = useCallback(
     (card: Contact & { id: string }) => () => {
-      setCards(cards.filter((c) => c.id !== card.id));
       deleteDoc(doc(db, `users/${user?.uid}/contacts/${card.id}`))
         .then(() => {
-          setCards(cards.filter((c) => c.id !== card.id));
+          setCards(cards?.filter((c) => c.id !== card.id) ?? null);
         })
         .catch((error) => {
           console.error("Error deleting document: ", error);
@@ -213,34 +216,38 @@ export default function Rolodex() {
         onChange={(e) => setQuery(e.target.value.toLocaleUpperCase())}
       />
 
-      <ViewComponent>
-        {cards
-          .sort(SORTS[sort].impl)
-          .filter((c) => {
-            if (query) {
-              const q = query.toLocaleLowerCase();
-              return (
-                c.callsign.toLocaleLowerCase().includes(q) ||
-                c.name.toLocaleLowerCase().includes(q)
-              );
-            }
-            return true;
-          })
-          .map((contact) => (
-            <Card
-              key={contact.callsign}
-              contact={contact}
-              onEdit={makeEditHandler(contact)}
-              onDelete={makeDeleteHandler(contact)}
-            />
-          ))}
-        <Card
-          createMode
-          contact={{ name: "", callsign: "" }}
-          onEdit={createCard}
-          onDelete={() => {}}
-        />
-      </ViewComponent>
+      {cards !== null ? (
+        <ViewComponent>
+          {cards
+            .sort(SORTS[sort].impl)
+            .filter((c) => {
+              if (query) {
+                const q = query.toLocaleLowerCase();
+                return (
+                  c.callsign.toLocaleLowerCase().includes(q) ||
+                  c.name.toLocaleLowerCase().includes(q)
+                );
+              }
+              return true;
+            })
+            .map((contact) => (
+              <Card
+                key={contact.callsign}
+                contact={contact}
+                onEdit={makeEditHandler(contact)}
+                onDelete={makeDeleteHandler(contact)}
+              />
+            ))}
+          <Card
+            createMode
+            contact={{ name: "", callsign: "" }}
+            onEdit={createCard}
+            onDelete={() => {}}
+          />
+        </ViewComponent>
+      ) : (
+        <div />
+      )}
     </div>
   );
 }
