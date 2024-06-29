@@ -197,7 +197,11 @@ export default function Rolodex() {
           .sort(SORTS[sort].impl)
           .filter((c) => {
             if (query) {
-              return c.callsign.includes(query) || c.name.includes(query);
+              const q = query.toLocaleLowerCase();
+              return (
+                c.callsign.toLocaleLowerCase().includes(q) ||
+                c.name.toLocaleLowerCase().includes(q)
+              );
             }
             return true;
           })
