@@ -4,7 +4,14 @@ import { Contact } from "./contact";
 import useLocalStorageState from "use-local-storage-state";
 import { FirebaseContext } from "./FirebaseWrapper";
 import { signOut } from "firebase/auth";
-import { addDoc, collection, doc, getDocs, setDoc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  setDoc,
+} from "firebase/firestore";
 
 function lastNameFirst(name: string) {
   const parts = name.split(" ");
@@ -129,6 +136,20 @@ export default function Rolodex() {
     [cards, db, user]
   );
 
+  const makeDeleteHandler = useCallback(
+    (card: Contact & { id: string }) => () => {
+      setCards(cards.filter((c) => c.id !== card.id));
+      deleteDoc(doc(db, `users/${user?.uid}/contacts/${card.id}`))
+        .then(() => {
+          setCards(cards.filter((c) => c.id !== card.id));
+        })
+        .catch((error) => {
+          console.error("Error deleting document: ", error);
+        });
+    },
+    [cards, db, user]
+  );
+
   const ViewComponent = VIEW_COMPONENTS[view] || GridView;
 
   const [query, setQuery] = useState("");
@@ -210,12 +231,14 @@ export default function Rolodex() {
               key={contact.callsign}
               contact={contact}
               onEdit={makeEditHandler(contact)}
+              onDelete={makeDeleteHandler(contact)}
             />
           ))}
         <Card
           createMode
           contact={{ name: "", callsign: "" }}
           onEdit={createCard}
+          onDelete={() => {}}
         />
       </ViewComponent>
     </div>

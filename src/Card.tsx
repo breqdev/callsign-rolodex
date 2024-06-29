@@ -3,6 +3,7 @@ import {
   faPencilAlt,
   faPlus,
   faStar,
+  faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { Contact } from "./contact";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -29,10 +30,12 @@ function Field({
 export default function Card({
   contact,
   onEdit,
+  onDelete,
   createMode = false,
 }: {
   contact: Contact;
   onEdit: (c: Contact) => void;
+  onDelete: () => void;
   createMode?: boolean;
 }) {
   const { data: dmr } = useSWR(
@@ -147,12 +150,20 @@ export default function Card({
           />
         </button>
       ) : editMode ? (
-        <button
-          className="absolute bottom-3 right-3 border-black rounded border w-12 h-12 grid place-items-center z-10"
-          onClick={exitEditMode}
-        >
-          <FontAwesomeIcon icon={faCheck} className="text-3xl" />
-        </button>
+        <div className="absolute bottom-3 right-3 flex flex-row gap-2 z-10">
+          <button
+            className="border-black rounded border w-12 h-12 grid place-items-center"
+            onClick={onDelete}
+          >
+            <FontAwesomeIcon icon={faTrashAlt} className="text-3xl" />
+          </button>
+          <button
+            className="border-black rounded border w-12 h-12 grid place-items-center"
+            onClick={exitEditMode}
+          >
+            <FontAwesomeIcon icon={faCheck} className="text-3xl" />
+          </button>
+        </div>
       ) : (
         <button
           className="absolute bottom-3 right-3 border-black rounded border w-12 h-12 grid place-items-center z-10"
