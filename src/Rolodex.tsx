@@ -4,8 +4,7 @@ import { Contact } from "./contact";
 import useLocalStorageState from "use-local-storage-state";
 import { FirebaseContext } from "./FirebaseWrapper";
 import { signOut } from "firebase/auth";
-import { addDoc, collection, getDocs } from "firebase/firestore";
-import NewCard from "./NewCard";
+import { addDoc, collection, doc, getDocs, setDoc } from "firebase/firestore";
 
 function lastNameFirst(name: string) {
   const parts = name.split(" ");
@@ -19,14 +18,14 @@ type Sort = {
 };
 
 const SORTS: Sort[] = [
-  {
-    name: "Starred",
-    impl: (a, b) => {
-      if (a.star && !b.star) return -1;
-      if (!a.star && b.star) return 1;
-      return lastNameFirst(a.name).localeCompare(lastNameFirst(b.name));
-    },
-  },
+  // {
+  //   name: "Starred",
+  //   impl: (a, b) => {
+  //     if (a.star && !b.star) return -1;
+  //     if (!a.star && b.star) return 1;
+  //     return lastNameFirst(a.name).localeCompare(lastNameFirst(b.name));
+  //   },
+  // },
   {
     name: "Last Name",
     impl: (a, b) => lastNameFirst(a.name).localeCompare(lastNameFirst(b.name)),
@@ -41,66 +40,19 @@ const SORTS: Sort[] = [
   },
 ];
 
-function GridView({
-  cards,
-  newCard,
-}: {
-  cards: Contact[];
-  newCard: (c: Contact) => void;
-}) {
+function GridView({ children }: { children: React.ReactNode }) {
   return (
     <div className="grid grid-cols-[repeat(auto-fit,350px)] gap-4 p-4 justify-center">
-      {cards.map((contact) => (
-        <Card key={contact.callsign} contact={contact} />
-      ))}
-      <NewCard onCreate={newCard} />
+      {children}
     </div>
   );
 }
 
-function ColumnView({
-  cards,
-  newCard,
-}: {
-  cards: Contact[];
-  newCard: (c: Contact) => void;
-}) {
+function ColumnView({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-4 py-4 w-[350px] mx-auto h-96 flex-grow min-h-0 overflow-y-scroll">
-      {cards.map((contact) => (
-        <Card key={contact.callsign} contact={contact} />
-      ))}
-      <NewCard onCreate={newCard} />
+      {children}
     </div>
-  );
-}
-
-function SearchView({
-  cards,
-  newCard,
-}: {
-  cards: Contact[];
-  newCard: (c: Contact) => void;
-}) {
-  const [query, setQuery] = useState("");
-
-  return (
-    <>
-      <input
-        className="max-w-xl w-full mx-auto text-7xl font-mono my-8 border-b-4 border-black"
-        placeholder="callsign"
-        value={query}
-        onChange={(e) => setQuery(e.target.value.toLocaleUpperCase())}
-      />
-      <div className="grid grid-cols-[repeat(auto-fit,350px)] gap-4 p-4 justify-center">
-        {cards
-          .filter((c) => c.callsign.startsWith(query))
-          .map((contact) => (
-            <Card key={contact.callsign} contact={contact} />
-          ))}
-        <NewCard onCreate={newCard} />
-      </div>
-    </>
   );
 }
 
@@ -113,35 +65,42 @@ const VIEWS = [
     name: "Column",
     value: "column",
   },
-  {
-    name: "Search",
-    value: "search",
-  },
 ] as const;
+
+const VIEW_COMPONENTS = {
+  grid: GridView,
+  column: ColumnView,
+};
 
 export default function Rolodex() {
   const { auth, user, db } = useContext(FirebaseContext);
-  const [view, setView] = useLocalStorageState<"grid" | "column" | "search">(
-    "view",
-    {
-      defaultValue: "grid",
-    }
-  );
+  const [view, setView] = useLocalStorageState<"grid" | "column">("view", {
+    defaultValue: "grid",
+  });
   const [sort, setSort] = useLocalStorageState("sort", { defaultValue: 0 });
 
-  const [cards, setCards] = useState<Contact[]>([]);
+  const [cards, setCards] = useState<(Contact & { id: string })[]>([]);
 
   useEffect(() => {
     getDocs(collection(db, `users/${user?.uid}/contacts`)).then((snapshot) => {
-      setCards(snapshot.docs.map((doc) => doc.data() as Contact));
+      setCards(
+        snapshot.docs.map((doc) => {
+          const data = doc.data() as Contact;
+          return {
+            ...data,
+            id: doc.id,
+          };
+        })
+      );
     });
   }, [db, user]);
 
   const createCard = useCallback(
     (c: Contact) => {
       addDoc(collection(db, `users/${user?.uid}/contacts`), c)
-        .then(() => {
-          setCards([...cards, c]);
+        .then((doc) => {
+          const card = { ...c, id: doc.id };
+          setCards([...cards, card]);
         })
         .catch((error) => {
           console.error("Error adding document: ", error);
@@ -149,6 +108,30 @@ export default function Rolodex() {
     },
     [cards, db, user]
   );
+
+  const makeEditHandler = useCallback(
+    (old_card: Contact & { id: string }) => (new_card: Contact) => {
+      setDoc(doc(db, `users/${user?.uid}/contacts/${old_card.id}`), new_card)
+        .then(() => {
+          setCards(
+            cards.map((card) => {
+              if (card.id === old_card.id) {
+                return { ...new_card, id: old_card.id };
+              }
+              return card;
+            })
+          );
+        })
+        .catch((error) => {
+          console.error("Error updating document: ", error);
+        });
+    },
+    [cards, db, user]
+  );
+
+  const ViewComponent = VIEW_COMPONENTS[view] || GridView;
+
+  const [query, setQuery] = useState("");
 
   return (
     <div className="flex flex-col h-full">
@@ -201,15 +184,36 @@ export default function Rolodex() {
           </div>
         </div>
       </div>
-      {view === "grid" && (
-        <GridView cards={cards.sort(SORTS[sort].impl)} newCard={createCard} />
-      )}
-      {view === "column" && (
-        <ColumnView cards={cards.sort(SORTS[sort].impl)} newCard={createCard} />
-      )}
-      {view === "search" && (
-        <SearchView cards={cards.sort(SORTS[sort].impl)} newCard={createCard} />
-      )}
+
+      <input
+        className="max-w-xl w-full mx-auto text-7xl font-mono my-8 border-b-4 border-black"
+        placeholder="search"
+        value={query}
+        onChange={(e) => setQuery(e.target.value.toLocaleUpperCase())}
+      />
+
+      <ViewComponent>
+        {cards
+          .sort(SORTS[sort].impl)
+          .filter((c) => {
+            if (query) {
+              return c.callsign.includes(query) || c.name.includes(query);
+            }
+            return true;
+          })
+          .map((contact) => (
+            <Card
+              key={contact.callsign}
+              contact={contact}
+              onEdit={makeEditHandler(contact)}
+            />
+          ))}
+        <Card
+          createMode
+          contact={{ name: "", callsign: "" }}
+          onEdit={createCard}
+        />
+      </ViewComponent>
     </div>
   );
 }
