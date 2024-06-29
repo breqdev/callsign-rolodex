@@ -1,0 +1,28 @@
+@font-face {
+  font-family: "Morse";
+  src: url("/morse.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/JetBrainsMono-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "DIN";
+  src: url("/D-DIN.otf") format("opentype");
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+.font-mono {
+  font-feature-settings: "zero", "cv16", "cv18";
+}
