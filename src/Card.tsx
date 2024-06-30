@@ -2,9 +2,10 @@ import {
   faCheck,
   faPencilAlt,
   faPlus,
-  faStar,
+  faStar as faStarSolid,
   faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
+import { faStar as faStarOutline } from "@fortawesome/free-regular-svg-icons";
 import { Contact } from "./contact";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import useSWR from "swr";
@@ -49,12 +50,14 @@ export default function Card({
   const [draftCallsign, setDraftCallsign] = useState("");
   const [draftName, setDraftName] = useState("");
   const [draftWebsite, setDraftWebsite] = useState("");
+  const [draftStar, setDraftStar] = useState(false);
 
   const enterEditMode = useCallback(() => {
     setEditMode(true);
     setDraftCallsign(contact?.callsign || "");
     setDraftName(contact?.name || "");
     setDraftWebsite(contact?.website || "");
+    setDraftStar(contact?.star || false);
   }, [contact]);
 
   const exitEditMode = useCallback(() => {
@@ -63,19 +66,21 @@ export default function Card({
       callsign: draftCallsign,
       name: draftName,
       website: draftWebsite || undefined,
+      star: draftStar,
     });
-  }, [draftCallsign, draftName, draftWebsite, onEdit]);
+  }, [draftCallsign, draftName, draftWebsite, draftStar, onEdit]);
 
   const handleCreate = useCallback(() => {
     onEdit({
       callsign: draftCallsign,
       name: draftName,
       website: draftWebsite || undefined,
+      star: draftStar,
     });
     setDraftCallsign("");
     setDraftName("");
     setDraftWebsite("");
-  }, [draftCallsign, draftName, draftWebsite, onEdit]);
+  }, [draftCallsign, draftName, draftWebsite, draftStar, onEdit]);
 
   const displayCallsign = editMode ? draftCallsign : contact.callsign;
   const displayName = editMode ? draftName : contact.name;
@@ -138,7 +143,7 @@ export default function Card({
       </div>
       <div className="-mb-1 grid grid-cols-[2.1rem,1fr] z-10">
         {dmr?.count ? <Field label="DMR">{dmr.results[0].id}</Field> : null}
-        {(contact.website || createMode || editMode) && (
+        {(contact.website || editMode) && (
           <Field label="WEB">
             {createMode || editMode ? (
               <div className="relative w-36">
@@ -161,19 +166,27 @@ export default function Card({
           </Field>
         )}
       </div>
-      {contact.star && (
-        <FontAwesomeIcon
-          icon={faStar}
-          className="absolute top-3 right-3 text-yellow-500 text-3xl z-10"
-        />
+      {(contact.star || editMode) && (
+        <button
+          className="absolute top-4 right-4 text-yellow-500 text-3xl z-10"
+          onClick={() => setDraftStar(!draftStar)}
+          disabled={!editMode}
+        >
+          <FontAwesomeIcon
+            icon={
+              (!editMode && contact.star) || (editMode && draftStar)
+                ? faStarSolid
+                : faStarOutline
+            }
+          />
+        </button>
       )}
       {createMode ? (
-        <button className="absolute bottom-3 right-3 border-black rounded border w-12 h-12 grid place-items-center z-10">
-          <FontAwesomeIcon
-            icon={faPlus}
-            className="text-3xl"
-            onClick={handleCreate}
-          />
+        <button
+          className="absolute bottom-3 right-3 border-black rounded border w-12 h-12 grid place-items-center z-10"
+          onClick={handleCreate}
+        >
+          <FontAwesomeIcon icon={faPlus} className="text-3xl" />
         </button>
       ) : editMode ? (
         <div className="absolute bottom-3 right-3 flex flex-row gap-2 z-10">

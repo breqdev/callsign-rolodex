@@ -25,14 +25,14 @@ type Sort = {
 };
 
 const SORTS: Sort[] = [
-  // {
-  //   name: "Starred",
-  //   impl: (a, b) => {
-  //     if (a.star && !b.star) return -1;
-  //     if (!a.star && b.star) return 1;
-  //     return lastNameFirst(a.name).localeCompare(lastNameFirst(b.name));
-  //   },
-  // },
+  {
+    name: "Starred",
+    impl: (a, b) => {
+      if (a.star && !b.star) return -1;
+      if (!a.star && b.star) return 1;
+      return lastNameFirst(a.name).localeCompare(lastNameFirst(b.name));
+    },
+  },
   {
     name: "Last Name",
     impl: (a, b) => lastNameFirst(a.name).localeCompare(lastNameFirst(b.name)),
