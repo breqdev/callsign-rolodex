@@ -142,7 +142,17 @@ export default function Card({
         </div>
       </div>
       <div className="-mb-1 grid grid-cols-[2.1rem,1fr] z-10">
-        {dmr?.count ? <Field label="DMR">{dmr.results[0].id}</Field> : null}
+        {dmr?.count ? (
+          <Field label="DMR">
+            <a
+              href={`https://radioid.net/database/view?id=${dmr.results[0].id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {dmr.results[0].id}
+            </a>
+          </Field>
+        ) : null}
         {(contact.website || editMode) && (
           <Field label="WEB">
             {createMode || editMode ? (
