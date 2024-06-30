@@ -28,16 +28,57 @@ function Field({
   );
 }
 
+const NATO_ALPHABET: Record<string, string> = {
+  "0": "Zero",
+  "1": "One",
+  "2": "Two",
+  "3": "Three",
+  "4": "Four",
+  "5": "Five",
+  "6": "Six",
+  "7": "Seven",
+  "8": "Eight",
+  "9": "Niner",
+  A: "Alfa",
+  B: "Bravo",
+  C: "Charlie",
+  D: "Delta",
+  E: "Echo",
+  F: "Foxtrot",
+  G: "Golf",
+  H: "Hotel",
+  I: "India",
+  J: "Juliett",
+  K: "Kilo",
+  L: "Lima",
+  M: "Mike",
+  N: "November",
+  O: "Oscar",
+  P: "Papa",
+  Q: "Quebec",
+  R: "Romeo",
+  S: "Sierra",
+  T: "Tango",
+  U: "Uniform",
+  V: "Victor",
+  W: "Whiskey",
+  X: "Xray",
+  Y: "Yankee",
+  Z: "Zulu",
+};
+
 export default function Card({
   contact,
   onEdit,
   onDelete,
   createMode = false,
+  referenceType,
 }: {
   contact: Contact;
   onEdit: (c: Contact) => void;
   onDelete: () => void;
   createMode?: boolean;
+  referenceType: "morse" | "nato";
 }) {
   const { data: dmr } = useSWR(
     contact
@@ -133,11 +174,20 @@ export default function Card({
           />
           <div className="absolute bottom-0 left-0 right-0 border-b-2 transition-colors border-transparent peer-enabled:peer-hover:border-gray-400 peer-enabled:peer-focus-visible:border-black z-20" />
         </div>
-        <p className="font-morse text-lg select-none flex flex-row gap-2 -my-1 ml-0.5 z-10 h-7">
-          {[...displayCallsign].map((c, i) => (
-            <span key={i}>{c}</span>
-          ))}
-        </p>
+        {referenceType == "morse" && (
+          <p className="font-morse text-lg select-none flex flex-row gap-2 -my-1 ml-0.5 z-10 h-7">
+            {[...displayCallsign].map((c, i) => (
+              <span key={i}>{c}</span>
+            ))}
+          </p>
+        )}
+        {referenceType == "nato" && (
+          <p className="italic lowercase text-sm select-none flex flex-row gap-2 -my-1 ml-0.5 z-10 h-7">
+            {[...displayCallsign].map((c, i) => (
+              <span key={i}>{NATO_ALPHABET[c.toLocaleUpperCase()]}</span>
+            ))}
+          </p>
+        )}
         <div className="relative">
           <input
             className="text-3xl -my-1 bg-transparent peer outline-none ml-0.5"

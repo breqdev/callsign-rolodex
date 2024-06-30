@@ -85,6 +85,9 @@ export default function Rolodex() {
     defaultValue: "grid",
   });
   const [sort, setSort] = useLocalStorageState("sort", { defaultValue: 0 });
+  const [referenceType, setReferenceType] = useLocalStorageState<
+    "morse" | "nato"
+  >("referenceType", { defaultValue: "morse" });
 
   const [cards, setCards] = useState<(Contact & { id: string })[] | null>(null);
 
@@ -172,25 +175,51 @@ export default function Rolodex() {
             </button>
           </div>
         </div>
-        <div className="flex flex-col md:flex-row w-full justify-between gap-2">
-          <div className="flex flex-row rounded-xl bg-white p-1">
-            <span className="px-2 py-1">View as</span>
-            {VIEWS.map((s) => (
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-col md:flex-row w-full justify-between gap-2">
+            <div className="flex flex-row rounded-xl bg-white p-1">
+              <span className="px-2 py-1">View as</span>
+              {VIEWS.map((s) => (
+                <button
+                  key={s.name}
+                  onClick={() => setView(s.value)}
+                  className={
+                    view === s.value
+                      ? "px-2 py-1 bg-blue-200 rounded-lg"
+                      : "px-2 py-1 bg-white rounded-lg"
+                  }
+                >
+                  {s.name}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex flex-row rounded-xl bg-white p-1">
+              <span className="px-2 py-1">Hint mode</span>
               <button
-                key={s.name}
-                onClick={() => setView(s.value)}
+                onClick={() => setReferenceType("morse")}
                 className={
-                  view === s.value
+                  referenceType === "morse"
                     ? "px-2 py-1 bg-blue-200 rounded-lg"
                     : "px-2 py-1 bg-white rounded-lg"
                 }
               >
-                {s.name}
+                Morse Code
               </button>
-            ))}
+              <button
+                onClick={() => setReferenceType("nato")}
+                className={
+                  referenceType === "nato"
+                    ? "px-2 py-1 bg-blue-200 rounded-lg"
+                    : "px-2 py-1 bg-white rounded-lg"
+                }
+              >
+                NATO Phonetics
+              </button>
+            </div>
           </div>
 
-          <div className="flex flex-row rounded-xl bg-white p-1">
+          <div className="flex flex-row rounded-xl bg-white p-1 md:self-start">
             <span className="px-2 py-1">Sort by</span>
             {SORTS.map((s, i) => (
               <button
@@ -236,6 +265,7 @@ export default function Rolodex() {
                 contact={contact}
                 onEdit={makeEditHandler(contact)}
                 onDelete={makeDeleteHandler(contact)}
+                referenceType={referenceType}
               />
             ))}
           <Card
@@ -243,6 +273,7 @@ export default function Rolodex() {
             contact={{ name: "", callsign: "" }}
             onEdit={createCard}
             onDelete={() => {}}
+            referenceType={referenceType}
           />
         </ViewComponent>
       ) : (
