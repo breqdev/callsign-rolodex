@@ -62,10 +62,19 @@ export default function Card({
 
   const exitEditMode = useCallback(() => {
     setEditMode(false);
+
+    let website: string | undefined = draftWebsite;
+    if (website.length === 0) {
+      website = undefined;
+    }
+    if (website && !website.match(/^https?:\/\//)) {
+      website = "https://" + website;
+    }
+
     onEdit({
       callsign: draftCallsign,
       name: draftName,
-      website: draftWebsite || undefined,
+      website,
       star: draftStar,
     });
   }, [draftCallsign, draftName, draftWebsite, draftStar, onEdit]);
