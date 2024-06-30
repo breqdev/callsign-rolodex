@@ -1,6 +1,10 @@
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { Auth, User, getAuth, onAuthStateChanged } from "firebase/auth";
-import { Firestore, getFirestore } from "firebase/firestore";
+import {
+  Firestore,
+  getFirestore,
+  initializeFirestore,
+} from "firebase/firestore";
 import React, { useEffect, useMemo, useState } from "react";
 
 export const FirebaseContext = React.createContext<{
@@ -26,6 +30,10 @@ export default function FirebaseWrapper({
     };
 
     const app = initializeApp(firebaseConfig);
+    initializeFirestore(app, {
+      ignoreUndefinedProperties: true,
+    });
+
     const auth = getAuth(app);
     const db = getFirestore(app);
 

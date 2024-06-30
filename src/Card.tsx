@@ -48,23 +48,34 @@ export default function Card({
   const [editMode, setEditMode] = useState(createMode);
   const [draftCallsign, setDraftCallsign] = useState("");
   const [draftName, setDraftName] = useState("");
+  const [draftWebsite, setDraftWebsite] = useState("");
 
   const enterEditMode = useCallback(() => {
     setEditMode(true);
     setDraftCallsign(contact?.callsign || "");
     setDraftName(contact?.name || "");
+    setDraftWebsite(contact?.website || "");
   }, [contact]);
 
   const exitEditMode = useCallback(() => {
     setEditMode(false);
-    onEdit({ callsign: draftCallsign, name: draftName });
-  }, [draftCallsign, draftName, onEdit]);
+    onEdit({
+      callsign: draftCallsign,
+      name: draftName,
+      website: draftWebsite || undefined,
+    });
+  }, [draftCallsign, draftName, draftWebsite, onEdit]);
 
   const handleCreate = useCallback(() => {
-    onEdit({ callsign: draftCallsign, name: draftName });
+    onEdit({
+      callsign: draftCallsign,
+      name: draftName,
+      website: draftWebsite || undefined,
+    });
     setDraftCallsign("");
     setDraftName("");
-  }, [draftCallsign, draftName, onEdit]);
+    setDraftWebsite("");
+  }, [draftCallsign, draftName, draftWebsite, onEdit]);
 
   const displayCallsign = editMode ? draftCallsign : contact.callsign;
   const displayName = editMode ? draftName : contact.name;
@@ -127,11 +138,26 @@ export default function Card({
       </div>
       <div className="-mb-1 grid grid-cols-[2.1rem,1fr] z-10">
         {dmr?.count ? <Field label="DMR">{dmr.results[0].id}</Field> : null}
-        {contact.website && (
+        {(contact.website || createMode || editMode) && (
           <Field label="WEB">
-            <a href={contact.website} target="_blank" rel="noopener noreferrer">
-              {contact.website.replace(/https?:\/\//, "").replace(/\/$/, "")}
-            </a>
+            {createMode || editMode ? (
+              <div className="relative w-36">
+                <input
+                  className="peer bg-transparent outline-none w-full"
+                  value={draftWebsite}
+                  onChange={(e) => setDraftWebsite(e.target.value)}
+                />
+                <div className="absolute bottom-1 left-0 right-0 border-b transition-colors border-transparent peer-enabled:peer-hover:border-gray-400 peer-enabled:peer-focus-visible:border-black z-20" />
+              </div>
+            ) : (
+              <a
+                href={contact.website}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {contact.website?.replace(/https?:\/\//, "").replace(/\/$/, "")}
+              </a>
+            )}
           </Field>
         )}
       </div>
@@ -174,8 +200,10 @@ export default function Card({
       )}
       <div
         className={
-          "absolute rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)] bg-white transition-all " +
-          (editMode || createMode ? "inset-2" : "inset-0")
+          "absolute bg-white transition-all " +
+          (editMode || createMode
+            ? "inset-2 rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)]"
+            : "inset-0 rounded-none")
         }
       />
     </div>
