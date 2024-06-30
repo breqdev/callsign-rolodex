@@ -182,9 +182,9 @@ export default function Card({
           </p>
         )}
         {referenceType == "nato" && (
-          <p className="italic lowercase text-sm select-none flex flex-row gap-2 -my-1 ml-0.5 z-10 h-7">
+          <p className="italic lowercase text-sm select-none flex flex-row -my-1 ml-0.5 z-10 h-7">
             {[...displayCallsign].map((c, i) => (
-              <span key={i}>{NATO_ALPHABET[c.toLocaleUpperCase()]}</span>
+              <div key={i} className="w-[43px] text-center">{NATO_ALPHABET[c.toLocaleUpperCase()]}</div>
             ))}
           </p>
         )}
