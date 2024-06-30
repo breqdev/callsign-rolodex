@@ -125,8 +125,8 @@ export default function Card({
           <div className="absolute bottom-0 left-0 right-0 border-b-2 transition-colors border-transparent peer-enabled:peer-hover:border-gray-400 peer-enabled:peer-focus-visible:border-black z-20" />
         </div>
         <p className="font-morse text-lg select-none flex flex-row gap-2 -my-1 ml-0.5 z-10 h-7">
-          {[...displayCallsign].map((c) => (
-            <span>{c}</span>
+          {[...displayCallsign].map((c, i) => (
+            <span key={i}>{c}</span>
           ))}
         </p>
         <div className="relative">
