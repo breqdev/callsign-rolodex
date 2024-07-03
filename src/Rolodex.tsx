@@ -239,7 +239,7 @@ export default function Rolodex() {
   const [query, setQuery] = useState("");
 
   return (
-    <div className="flex flex-col h-full p-2 items-stretch">
+    <div className="flex flex-col h-full p-4 items-stretch">
       <div className="mt-4 flex flex-col max-w-3xl mx-auto p-4 rounded-2xl bg-gray-200 font-display gap-2 w-full">
         <div className="flex flex-row w-full justify-between">
           <h1 className="font-mono text-3xl">rolodex</h1>
@@ -317,12 +317,14 @@ export default function Rolodex() {
       </div>
 
       {view !== "column" && (
-        <input
-          className="max-w-xl w-full mx-auto text-7xl font-mono my-8 border-b-4 border-black"
-          placeholder="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value.toLocaleUpperCase())}
-        />
+        <div className="max-w-xl w-full mx-auto py-8 px-4">
+          <input
+            className="w-full text-7xl font-mono border-b-4 outline-none border-gray-200 hover:border-black focus:border-black transition-colors"
+            placeholder="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value.toLocaleUpperCase())}
+          />
+        </div>
       )}
 
       {cards !== null ? (
