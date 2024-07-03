@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import Card from "./Card";
 import { Contact } from "./contact";
 import useLocalStorageState from "use-local-storage-state";
@@ -55,10 +55,88 @@ function GridView({ children }: { children: React.ReactNode }) {
   );
 }
 
-function ColumnView({ children }: { children: React.ReactNode }) {
+function ColumnView({ children }: { children: Iterable<React.ReactNode> }) {
+  const container = useRef<HTMLDivElement>(null);
+  const topPadding = useRef<HTMLDivElement>(null);
+  const bottomPadding = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const c = container.current;
+
+    const handleScroll = () => {
+      if (c) {
+        const cards = container.current.children;
+
+        const rect = container.current.getBoundingClientRect();
+        const top = rect.top;
+        const bottom = rect.bottom;
+
+        const maxDelta = (bottom - top) / 2;
+        const cardHeight = (350 * 53.98) / 85.6;
+        topPadding.current!.style.height = `${
+          maxDelta - cardHeight / 2 - 16
+        }px`;
+        bottomPadding.current!.style.height = `${
+          maxDelta - cardHeight / 2 - 16
+        }px`;
+
+        const center = (top + bottom) / 2;
+
+        for (let i = 0; i < cards.length; i++) {
+          const card = cards[i] as HTMLElement;
+          const cardRect = card.getBoundingClientRect();
+          const cardTop = cardRect.top;
+          const cardBottom = cardRect.bottom;
+          const cardCenter = (cardTop + cardBottom) / 2;
+
+          // at the extremes, the card should be rotated to the max (+/-90)
+          // between 1/3 and 2/3 of the way, it should be rotated to 0
+
+          const delta = (cardCenter - center) / maxDelta;
+
+          if (delta < -1 / 2) {
+            const rotation = -50 * (delta - -1 / 2);
+            const translateZ = 200 * Math.max(delta - -1 / 2, -1);
+            const translateY = -100 * Math.max(delta - -1 / 2, -1);
+            card.style.transform = `rotateX(${rotation}deg) translateZ(${translateZ}px) translateY(${translateY}px)`;
+          } else if (delta > 1 / 2) {
+            const rotation = -90 * (delta - 1 / 2);
+            card.style.transform = `rotateX(${rotation}deg)`;
+          } else {
+            card.style.transform = `rotateX(0deg)`;
+          }
+        }
+      }
+    };
+
+    handleScroll();
+
+    c?.addEventListener("scroll", handleScroll);
+
+    return () => {
+      c?.removeEventListener("scroll", handleScroll);
+    };
+  });
+
   return (
-    <div className="flex flex-col gap-4 py-4 w-[350px] mx-auto h-96 flex-grow min-h-0 overflow-y-scroll">
-      {children}
+    <div
+      className="flex flex-col items-center gap-4 px-[25px] overflow-x-hidden w-full overflow-y-scroll h-0 flex-grow"
+      style={{
+        perspective: "1000px",
+        perspectiveOrigin: "center",
+      }}
+      ref={container}
+    >
+      <div className="flex-shrink-0 h-full" ref={topPadding} />
+      {[...children].flat().map((c) => (
+        <div
+          className="flex-shrink-0 max-w-[350px] w-full"
+          style={{ transformStyle: "preserve-3d", transform: "rotateX(0deg)" }}
+        >
+          {c}
+        </div>
+      ))}
+      <div className="flex-shrink-0" ref={bottomPadding} />
     </div>
   );
 }
@@ -161,7 +239,7 @@ export default function Rolodex() {
   const [query, setQuery] = useState("");
 
   return (
-    <div className="flex flex-col h-full p-2">
+    <div className="flex flex-col h-full p-2 items-stretch">
       <div className="mt-4 flex flex-col max-w-3xl mx-auto p-4 rounded-2xl bg-gray-200 font-display gap-2 w-full">
         <div className="flex flex-row w-full justify-between">
           <h1 className="font-mono text-3xl">rolodex</h1>
@@ -238,12 +316,14 @@ export default function Rolodex() {
         </div>
       </div>
 
-      <input
-        className="max-w-xl w-full mx-auto text-7xl font-mono my-8 border-b-4 border-black"
-        placeholder="search"
-        value={query}
-        onChange={(e) => setQuery(e.target.value.toLocaleUpperCase())}
-      />
+      {view !== "column" && (
+        <input
+          className="max-w-xl w-full mx-auto text-7xl font-mono my-8 border-b-4 border-black"
+          placeholder="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value.toLocaleUpperCase())}
+        />
+      )}
 
       {cards !== null ? (
         <ViewComponent>
