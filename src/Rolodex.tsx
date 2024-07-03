@@ -22,6 +22,7 @@ function lastNameFirst(name: string) {
 type Sort = {
   name: string;
   impl: (a: Contact, b: Contact) => number;
+  tag?: (current: Contact, last: Contact | null) => string | undefined;
 };
 
 const SORTS: Sort[] = [
@@ -36,6 +37,15 @@ const SORTS: Sort[] = [
   {
     name: "Last Name",
     impl: (a, b) => lastNameFirst(a.name).localeCompare(lastNameFirst(b.name)),
+    tag: (current, last) => {
+      if (
+        !last ||
+        lastNameFirst(current.name)[0] != lastNameFirst(last.name)[0]
+      ) {
+        return lastNameFirst(current.name)[0];
+      }
+      return undefined;
+    },
   },
   {
     name: "First Name",
@@ -93,17 +103,22 @@ function ColumnView({ children }: { children: Iterable<React.ReactNode> }) {
           // between 1/3 and 2/3 of the way, it should be rotated to 0
 
           const delta = (cardCenter - center) / maxDelta;
+          const child = card.children[0] as HTMLElement;
+
+          if (!child) {
+            continue;
+          }
 
           if (delta < -1 / 2) {
-            const rotation = -50 * (delta - -1 / 2);
-            const translateZ = 200 * Math.max(delta - -1 / 2, -1);
-            const translateY = -100 * Math.max(delta - -1 / 2, -1);
-            card.style.transform = `rotateX(${rotation}deg) translateZ(${translateZ}px) translateY(${translateY}px)`;
+            const rotation = -50 * Math.max(delta - -1 / 2, -1);
+            const translateZ = 200 * (delta - -1 / 2);
+            const translateY = -250 * (delta - -1 / 2);
+            child.style.transform = `translateZ(${translateZ}px) translateY(${translateY}px) rotateX(${rotation}deg) `;
           } else if (delta > 1 / 2) {
             const rotation = -90 * (delta - 1 / 2);
-            card.style.transform = `rotateX(${rotation}deg)`;
+            child.style.transform = `rotateX(${rotation}deg)`;
           } else {
-            card.style.transform = `rotateX(0deg)`;
+            child.style.transform = `rotateX(0deg)`;
           }
         }
       }
@@ -127,16 +142,23 @@ function ColumnView({ children }: { children: Iterable<React.ReactNode> }) {
       }}
       ref={container}
     >
-      <div className="flex-shrink-0 h-full" ref={topPadding} />
-      {[...children].flat().map((c) => (
+      <div className="flex-shrink-0 w-full h-full" ref={topPadding} />
+      {[...children].flat().map((c, i) => (
         <div
-          className="flex-shrink-0 max-w-[350px] w-full"
-          style={{ transformStyle: "preserve-3d", transform: "rotateX(0deg)" }}
+          className="flex-shrink-0 max-w-[350px] aspect-[85.60/53.98] w-full"
+          style={{ transformStyle: "preserve-3d", zIndex: i }}
         >
-          {c}
+          <div
+            style={{
+              transformStyle: "preserve-3d",
+              transform: "rotateX(0deg)",
+            }}
+          >
+            {c}
+          </div>
         </div>
       ))}
-      <div className="flex-shrink-0" ref={bottomPadding} />
+      <div className="flex-shrink-0 w-full" ref={bottomPadding} />
     </div>
   );
 }
@@ -341,13 +363,23 @@ export default function Rolodex() {
               }
               return true;
             })
-            .map((contact) => (
+            .map((card, i, arr) => {
+              const last = i > 0 ? arr[i - 1] : null;
+
+              const tag = SORTS[sort].tag;
+              if (tag && view === "column") {
+                return { card, tag: tag(card, last) };
+              }
+              return { card, tag: undefined };
+            })
+            .map(({ card, tag }) => (
               <Card
-                key={contact.callsign}
-                contact={contact}
-                onEdit={makeEditHandler(contact)}
-                onDelete={makeDeleteHandler(contact)}
+                key={card.callsign}
+                contact={card}
+                onEdit={makeEditHandler(card)}
+                onDelete={makeDeleteHandler(card)}
                 referenceType={referenceType}
+                tab={tag}
               />
             ))}
           <Card

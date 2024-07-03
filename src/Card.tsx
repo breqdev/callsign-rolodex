@@ -73,12 +73,14 @@ export default function Card({
   onDelete,
   createMode = false,
   referenceType,
+  tab,
 }: {
   contact: Contact;
   onEdit: (c: Contact) => void;
   onDelete: () => void;
   createMode?: boolean;
   referenceType: "morse" | "nato";
+  tab?: string;
 }) {
   const { data: dmr } = useSWR(
     contact
@@ -152,142 +154,151 @@ export default function Card({
   );
 
   return (
-    <div
-      className="border-2 border-black aspect-[85.60/53.98] rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)] p-3 flex flex-col justify-between relative font-display flex-shrink-0 overflow-clip"
-      style={{
-        background:
-          "gray repeating-linear-gradient(-45deg, transparent, transparent 2px, #fff 2px, #fff 6px)",
-      }}
-    >
-      <div className="z-10">
-        <div className="relative">
-          <input
-            className="font-mono text-7xl w-full -my-3 bg-transparent outline-none peer"
-            value={displayCallsign}
-            onChange={(e) =>
-              setDraftCallsign(e.target.value.toLocaleUpperCase())
-            }
-            onKeyDown={handleInputKeyDown}
-            placeholder="call"
-            disabled={!editMode}
-            ref={firstInput}
-          />
-          <div className="absolute bottom-0 left-0 right-0 border-b-2 transition-colors border-transparent peer-enabled:peer-hover:border-gray-400 peer-enabled:peer-focus-visible:border-black z-20" />
+    <div className="aspect-[85.60/53.98] relative flex-shrink-0 border-2 border-black rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)]">
+      <div
+        className="overflow-clip relative rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)] w-full h-full p-3 flex flex-col justify-between font-display z-10"
+        style={{
+          background:
+            "gray repeating-linear-gradient(-45deg, transparent, transparent 2px, #fff 2px, #fff 6px)",
+        }}
+      >
+        <div className="z-10">
+          <div className="relative">
+            <input
+              className="font-mono text-7xl w-full -my-3 bg-transparent outline-none peer"
+              value={displayCallsign}
+              onChange={(e) =>
+                setDraftCallsign(e.target.value.toLocaleUpperCase())
+              }
+              onKeyDown={handleInputKeyDown}
+              placeholder="call"
+              disabled={!editMode}
+              ref={firstInput}
+            />
+            <div className="absolute bottom-0 left-0 right-0 border-b-2 transition-colors border-transparent peer-enabled:peer-hover:border-gray-400 peer-enabled:peer-focus-visible:border-black z-20" />
+          </div>
+          {referenceType == "morse" && (
+            <p className="font-morse text-lg select-none flex flex-row gap-2 -my-1 ml-0.5 z-10 h-7">
+              {[...displayCallsign].map((c, i) => (
+                <span key={i}>{c}</span>
+              ))}
+            </p>
+          )}
+          {referenceType == "nato" && (
+            <p className="italic lowercase text-sm select-none flex flex-row gap-2 -my-1 ml-0.5 z-10 h-7">
+              {[...displayCallsign].map((c, i) => (
+                <span key={i}>{NATO_ALPHABET[c.toLocaleUpperCase()]}</span>
+              ))}
+            </p>
+          )}
+          <div className="relative">
+            <input
+              className="text-3xl -my-1 bg-transparent peer outline-none ml-0.5"
+              value={displayName}
+              onChange={(e) => setDraftName(e.target.value)}
+              onKeyDown={handleInputKeyDown}
+              placeholder="name"
+              disabled={!editMode}
+            />
+            <div className="absolute bottom-0 left-0 right-0 border-b-2 transition-colors border-transparent peer-enabled:peer-hover:border-gray-400 peer-enabled:peer-focus-visible:border-black z-20" />
+          </div>
         </div>
-        {referenceType == "morse" && (
-          <p className="font-morse text-lg select-none flex flex-row gap-2 -my-1 ml-0.5 z-10 h-7">
-            {[...displayCallsign].map((c, i) => (
-              <span key={i}>{c}</span>
-            ))}
-          </p>
-        )}
-        {referenceType == "nato" && (
-          <p className="italic lowercase text-sm select-none flex flex-row gap-2 -my-1 ml-0.5 z-10 h-7">
-            {[...displayCallsign].map((c, i) => (
-              <span key={i}>{NATO_ALPHABET[c.toLocaleUpperCase()]}</span>
-            ))}
-          </p>
-        )}
-        <div className="relative">
-          <input
-            className="text-3xl -my-1 bg-transparent peer outline-none ml-0.5"
-            value={displayName}
-            onChange={(e) => setDraftName(e.target.value)}
-            onKeyDown={handleInputKeyDown}
-            placeholder="name"
-            disabled={!editMode}
-          />
-          <div className="absolute bottom-0 left-0 right-0 border-b-2 transition-colors border-transparent peer-enabled:peer-hover:border-gray-400 peer-enabled:peer-focus-visible:border-black z-20" />
-        </div>
-      </div>
-      <div className="-mb-1 grid grid-cols-[2.1rem,1fr] z-10">
-        {dmr?.count ? (
-          <Field label="DMR">
-            <a
-              href={`https://radioid.net/database/view?id=${dmr.results[0].id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {dmr.results[0].id}
-            </a>
-          </Field>
-        ) : null}
-        {(contact.website || editMode) && (
-          <Field label="WEB">
-            {createMode || editMode ? (
-              <div className="relative w-36">
-                <input
-                  className="peer bg-transparent outline-none w-full"
-                  value={draftWebsite}
-                  onChange={(e) => setDraftWebsite(e.target.value)}
-                />
-                <div className="absolute bottom-1 left-0 right-0 border-b transition-colors border-transparent peer-enabled:peer-hover:border-gray-400 peer-enabled:peer-focus-visible:border-black z-20" />
-              </div>
-            ) : (
+        <div className="-mb-1 grid grid-cols-[2.1rem,1fr] z-10">
+          {dmr?.count ? (
+            <Field label="DMR">
               <a
-                href={contact.website}
+                href={`https://radioid.net/database/view?id=${dmr.results[0].id}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {contact.website?.replace(/https?:\/\//, "").replace(/\/$/, "")}
+                {dmr.results[0].id}
               </a>
-            )}
-          </Field>
-        )}
-      </div>
-      {(contact.star || editMode) && (
-        <button
-          className="absolute top-4 right-4 text-yellow-500 text-3xl z-10"
-          onClick={() => setDraftStar(!draftStar)}
-          disabled={!editMode}
-        >
-          <FontAwesomeIcon
-            icon={
-              (!editMode && contact.star) || (editMode && draftStar)
-                ? faStarSolid
-                : faStarOutline
-            }
-          />
-        </button>
-      )}
-      {createMode ? (
-        <button
-          className="absolute bottom-3 right-3 border-black rounded border w-12 h-12 grid place-items-center z-10"
-          onClick={handleCreate}
-        >
-          <FontAwesomeIcon icon={faPlus} className="text-3xl" />
-        </button>
-      ) : editMode ? (
-        <div className="absolute bottom-3 right-3 flex flex-row gap-2 z-10">
-          <button
-            className="border-black rounded border w-12 h-12 grid place-items-center"
-            onClick={onDelete}
-          >
-            <FontAwesomeIcon icon={faTrashAlt} className="text-3xl" />
-          </button>
-          <button
-            className="border-black rounded border w-12 h-12 grid place-items-center"
-            onClick={exitEditMode}
-          >
-            <FontAwesomeIcon icon={faCheck} className="text-3xl" />
-          </button>
+            </Field>
+          ) : null}
+          {(contact.website || editMode) && (
+            <Field label="WEB">
+              {createMode || editMode ? (
+                <div className="relative w-36">
+                  <input
+                    className="peer bg-transparent outline-none w-full"
+                    value={draftWebsite}
+                    onChange={(e) => setDraftWebsite(e.target.value)}
+                  />
+                  <div className="absolute bottom-1 left-0 right-0 border-b transition-colors border-transparent peer-enabled:peer-hover:border-gray-400 peer-enabled:peer-focus-visible:border-black z-20" />
+                </div>
+              ) : (
+                <a
+                  href={contact.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {contact.website
+                    ?.replace(/https?:\/\//, "")
+                    .replace(/\/$/, "")}
+                </a>
+              )}
+            </Field>
+          )}
         </div>
-      ) : (
-        <button
-          className="absolute bottom-3 right-3 border-black rounded border w-12 h-12 grid place-items-center z-10"
-          onClick={enterEditMode}
-        >
-          <FontAwesomeIcon icon={faPencilAlt} className="text-3xl" />
-        </button>
+        {(contact.star || editMode) && (
+          <button
+            className="absolute top-4 right-4 text-yellow-500 text-3xl z-10"
+            onClick={() => setDraftStar(!draftStar)}
+            disabled={!editMode}
+          >
+            <FontAwesomeIcon
+              icon={
+                (!editMode && contact.star) || (editMode && draftStar)
+                  ? faStarSolid
+                  : faStarOutline
+              }
+            />
+          </button>
+        )}
+        {createMode ? (
+          <button
+            className="absolute bottom-3 right-3 border-black rounded border w-12 h-12 grid place-items-center z-10"
+            onClick={handleCreate}
+          >
+            <FontAwesomeIcon icon={faPlus} className="text-3xl" />
+          </button>
+        ) : editMode ? (
+          <div className="absolute bottom-3 right-3 flex flex-row gap-2 z-10">
+            <button
+              className="border-black rounded border w-12 h-12 grid place-items-center"
+              onClick={onDelete}
+            >
+              <FontAwesomeIcon icon={faTrashAlt} className="text-3xl" />
+            </button>
+            <button
+              className="border-black rounded border w-12 h-12 grid place-items-center"
+              onClick={exitEditMode}
+            >
+              <FontAwesomeIcon icon={faCheck} className="text-3xl" />
+            </button>
+          </div>
+        ) : (
+          <button
+            className="absolute bottom-3 right-3 border-black rounded border w-12 h-12 grid place-items-center z-10"
+            onClick={enterEditMode}
+          >
+            <FontAwesomeIcon icon={faPencilAlt} className="text-3xl" />
+          </button>
+        )}
+        <div
+          className={
+            "absolute bg-white transition-all " +
+            (editMode || createMode
+              ? "inset-2 rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)]"
+              : "inset-0 rounded-none")
+          }
+        />
+      </div>
+      {tab && (
+        <div className="absolute top-0 left-0 -mt-8 h-16 w-24 bg-blue-200 -z-10 rounded-t-2xl flex justify-center items-start">
+          <span className="text-xl mt-px">{tab}</span>
+        </div>
       )}
-      <div
-        className={
-          "absolute bg-white transition-all " +
-          (editMode || createMode
-            ? "inset-2 rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)]"
-            : "inset-0 rounded-none")
-        }
-      />
     </div>
   );
 }
