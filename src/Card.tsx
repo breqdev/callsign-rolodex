@@ -80,7 +80,7 @@ export default function Card({
   onDelete: () => void;
   createMode?: boolean;
   referenceType: "morse" | "nato";
-  tab?: string;
+  tab?: React.ReactNode;
 }) {
   const { data: dmr } = useSWR(
     contact
