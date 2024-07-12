@@ -321,7 +321,7 @@ export default function Card({
         />
       </div>
       {tab && (
-        <div className="absolute top-0 left-0 -mt-8 h-16 w-24 bg-blue-200 -z-10 rounded-t-2xl flex justify-center items-start">
+        <div className="absolute top-0 left-0 -mt-8 h-16 w-24 bg-blue-200 dark:bg-blue-800 -z-10 rounded-t-2xl flex justify-center items-start">
           <span className="text-xl mt-px">{tab}</span>
         </div>
       )}

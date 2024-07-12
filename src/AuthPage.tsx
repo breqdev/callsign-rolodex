@@ -52,49 +52,51 @@ export default function AuthPage() {
   );
 
   return (
-    <div className="flex flex-col py-16 md:py-32 md:gap-8">
+    <div className="flex flex-col py-16 md:py-32 md:gap-8 text-black dark:text-white">
       <h1 className="text-center text-6xl font-mono">rolodex</h1>
       <div className="grid grid-cols-1 md:grid-cols-[16rem,min-content,16rem] w-full p-4 place-content-center md:gap-4 font-display">
         <form className="flex flex-col gap-4 py-4" onSubmit={handleLogin}>
           <h2 className="text-center text-3xl">Log In</h2>
           <input
-            className="border border-black px-1 py-0.5"
+            className="border bg-white dark:bg-black border-black dark:border-white px-1 py-0.5"
             placeholder="email"
             name="email"
             type="email"
           />
           <input
-            className="border border-black px-1 py-0.5"
+            className="border bg-white dark:bg-black border-black dark:border-white px-1 py-0.5"
             placeholder="password"
             name="password"
             type="password"
           />
           <button
             type="submit"
-            className="border border-black px-1 py-0.5 hover:bg-black focus-visible:bg-black hover:text-white focus-visible:text-white"
+            className="border border-black dark:border-white px-1 py-0.5 hover:bg-black focus-visible:bg-black hover:text-white focus-visible:text-white dark:hover:bg-white dark:focus-visible:bg-white dark:hover:text-black dark:focus-visible:text-black"
           >
             continue <FontAwesomeIcon icon={faArrowRight} />
           </button>
-          <span className="italic text-red-600 md:h-6">{loginError}</span>
+          <span className="italic text-red-600 dark:text-red-300 md:h-6">
+            {loginError}
+          </span>
         </form>
-        <div className="hidden md:block w-px bg-black h-full rounded-full" />
+        <div className="hidden md:block w-px bg-black dark:bg-white h-full rounded-full" />
         <form className="flex flex-col gap-4 py-4" onSubmit={handleSignUp}>
           <h2 className="text-center text-3xl">Sign Up</h2>
           <input
-            className="border border-black px-1 py-0.5"
+            className="border bg-white dark:bg-black border-black dark:border-white px-1 py-0.5"
             placeholder="email"
             name="email"
             type="email"
           />
           <input
-            className="border border-black px-1 py-0.5"
+            className="border bg-white dark:bg-black border-black dark:border-white px-1 py-0.5"
             placeholder="password"
             name="password"
             type="password"
           />
           <button
             type="submit"
-            className="border border-black px-1 py-0.5 hover:bg-black focus-visible:bg-black hover:text-white focus-visible:text-white"
+            className="border border-black dark:border-white px-1 py-0.5 hover:bg-black focus-visible:bg-black hover:text-white focus-visible:text-white dark:hover:bg-white dark:focus-visible:bg-white dark:hover:text-black dark:focus-visible:text-black"
           >
             create account
           </button>
