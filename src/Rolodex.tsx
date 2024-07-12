@@ -218,14 +218,14 @@ export default function Rolodex() {
   const [query, setQuery] = useState("");
 
   return (
-    <div className="flex flex-col h-full p-4 items-stretch">
-      <div className="mt-4 flex flex-col max-w-3xl mx-auto p-4 rounded-2xl bg-gray-200 font-display gap-2 w-full">
+    <div className="flex flex-col h-full p-4 items-stretch bg-white text-black dark:bg-black dark:text-white">
+      <div className="mt-4 flex flex-col max-w-3xl mx-auto p-4 rounded-2xl bg-gray-200 dark:bg-gray-600 font-display gap-2 w-full">
         <div className="flex flex-row w-full justify-between">
           <h1 className="font-mono text-3xl">rolodex</h1>
           <div className="flex flex-row gap-2 items-center">
             <span>{user?.email}</span>
             <button
-              className="hover:underline focus-visible:underline text-gray-600"
+              className="hover:underline focus-visible:underline text-gray-600 dark:text-gray-200"
               onClick={() => signOut(auth)}
             >
               logout
@@ -234,7 +234,7 @@ export default function Rolodex() {
         </div>
         <div className="flex flex-col gap-2">
           <div className="flex flex-col md:flex-row w-full justify-between gap-2">
-            <div className="flex flex-row rounded-xl bg-white p-1">
+            <div className="flex flex-row rounded-xl bg-white dark:bg-black p-1">
               <span className="px-2 py-1">View as</span>
               {VIEWS.map((s) => (
                 <button
@@ -242,8 +242,8 @@ export default function Rolodex() {
                   onClick={() => setView(s.value)}
                   className={
                     view === s.value
-                      ? "px-2 py-1 bg-blue-200 rounded-lg"
-                      : "px-2 py-1 bg-white rounded-lg"
+                      ? "px-2 py-1 bg-blue-200 dark:bg-blue-800 rounded-lg"
+                      : "px-2 py-1 bg-white dark:bg-black rounded-lg"
                   }
                 >
                   {s.name}
@@ -251,14 +251,14 @@ export default function Rolodex() {
               ))}
             </div>
 
-            <div className="flex flex-row rounded-xl bg-white p-1">
+            <div className="flex flex-row rounded-xl bg-white dark:bg-black p-1">
               <span className="px-2 py-1">Hint mode</span>
               <button
                 onClick={() => setReferenceType("morse")}
                 className={
                   referenceType === "morse"
-                    ? "px-2 py-1 bg-blue-200 rounded-lg"
-                    : "px-2 py-1 bg-white rounded-lg"
+                    ? "px-2 py-1 bg-blue-200 dark:bg-blue-800 rounded-lg"
+                    : "px-2 py-1 bg-white dark:bg-black rounded-lg"
                 }
               >
                 Morse Code
@@ -267,8 +267,8 @@ export default function Rolodex() {
                 onClick={() => setReferenceType("nato")}
                 className={
                   referenceType === "nato"
-                    ? "px-2 py-1 bg-blue-200 rounded-lg"
-                    : "px-2 py-1 bg-white rounded-lg"
+                    ? "px-2 py-1 bg-blue-200 dark:bg-blue-800 rounded-lg"
+                    : "px-2 py-1 bg-white dark:bg-black rounded-lg"
                 }
               >
                 NATO Phonetics
@@ -276,7 +276,7 @@ export default function Rolodex() {
             </div>
           </div>
 
-          <div className="flex flex-row rounded-xl bg-white p-1 md:self-start">
+          <div className="flex flex-row rounded-xl bg-white dark:bg-black p-1 md:self-start">
             <span className="px-2 py-1">Sort by</span>
             {SORTS.map((s, i) => (
               <button
@@ -284,8 +284,8 @@ export default function Rolodex() {
                 onClick={() => setSort(i)}
                 className={
                   sort === i
-                    ? "px-2 py-1 bg-blue-200 rounded-lg"
-                    : "px-2 py-1 bg-white rounded-lg"
+                    ? "px-2 py-1 bg-blue-200 dark:bg-blue-800 rounded-lg"
+                    : "px-2 py-1 bg-white dark:bg-black rounded-lg"
                 }
               >
                 {s.name}
@@ -298,7 +298,7 @@ export default function Rolodex() {
       {view !== "column" && (
         <div className="max-w-xl w-full mx-auto py-8 px-4">
           <input
-            className="w-full text-7xl font-mono border-b-4 outline-none border-gray-200 hover:border-black focus:border-black transition-colors"
+            className="w-full text-7xl font-mono border-b-4 outline-none bg-white dark:bg-black border-gray-200 dark:border-gray-600  hover:border-black focus:border-black hover:dark:border-white focus:dark:border-white transition-colors"
             placeholder="search"
             value={query}
             onChange={(e) => setQuery(e.target.value.toLocaleUpperCase())}

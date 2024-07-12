@@ -9,7 +9,7 @@ import { faStar as faStarOutline } from "@fortawesome/free-regular-svg-icons";
 import { Contact } from "./contact";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import useSWR from "swr";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -153,13 +153,39 @@ export default function Card({
     [createMode, handleCreate, exitEditMode]
   );
 
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      setDark(true);
+    }
+
+    const listener = (e: MediaQueryListEvent) => {
+      if (e.matches) {
+        setDark(true);
+      } else {
+        setDark(false);
+      }
+    };
+
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", listener);
+
+    return () =>
+      window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .removeEventListener("change", listener);
+  }, []);
+
   return (
-    <div className="aspect-[85.60/53.98] relative flex-shrink-0 border-2 border-black rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)]">
+    <div className="aspect-[85.60/53.98] relative flex-shrink-0 border-2 border-black dark:border-white rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)]">
       <div
         className="overflow-clip relative rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)] w-full h-full p-3 flex flex-col justify-between font-display z-10"
         style={{
-          background:
-            "gray repeating-linear-gradient(-45deg, transparent, transparent 2px, #fff 2px, #fff 6px)",
+          background: dark
+            ? "gray repeating-linear-gradient(-45deg, transparent, transparent 2px, #000 2px, #000 6px)"
+            : "gray repeating-linear-gradient(-45deg, transparent, transparent 2px, #fff 2px, #fff 6px)",
         }}
       >
         <div className="z-10">
@@ -175,7 +201,7 @@ export default function Card({
               disabled={!editMode}
               ref={firstInput}
             />
-            <div className="absolute bottom-0 left-0 right-0 border-b-2 transition-colors border-transparent peer-enabled:peer-hover:border-gray-400 peer-enabled:peer-focus-visible:border-black z-20" />
+            <div className="absolute bottom-0 left-0 right-0 border-b-2 transition-colors border-transparent peer-enabled:peer-hover:border-gray-400 peer-enabled:peer-focus-visible:border-black dark:peer-enabled:peer-focus-visible:border-white z-20" />
           </div>
           {referenceType == "morse" && (
             <p className="font-morse text-lg select-none flex flex-row gap-2 -my-1 ml-0.5 z-10 h-7">
@@ -200,7 +226,7 @@ export default function Card({
               placeholder="name"
               disabled={!editMode}
             />
-            <div className="absolute bottom-0 left-0 right-0 border-b-2 transition-colors border-transparent peer-enabled:peer-hover:border-gray-400 peer-enabled:peer-focus-visible:border-black z-20" />
+            <div className="absolute bottom-0 left-0 right-0 border-b-2 transition-colors border-transparent peer-enabled:peer-hover:border-gray-400 peer-enabled:peer-focus-visible:border-black dark:peer-enabled:peer-focus-visible:border-white z-20" />
           </div>
         </div>
         <div className="-mb-1 grid grid-cols-[2.1rem,1fr] z-10">
@@ -224,7 +250,7 @@ export default function Card({
                     value={draftWebsite}
                     onChange={(e) => setDraftWebsite(e.target.value)}
                   />
-                  <div className="absolute bottom-1 left-0 right-0 border-b transition-colors border-transparent peer-enabled:peer-hover:border-gray-400 peer-enabled:peer-focus-visible:border-black z-20" />
+                  <div className="absolute bottom-1 left-0 right-0 border-b transition-colors border-transparent peer-enabled:peer-hover:border-gray-400 peer-enabled:peer-focus-visible:border-black dark:peer-enabled:peer-focus-visible:border-white z-20" />
                 </div>
               ) : (
                 <a
@@ -242,7 +268,7 @@ export default function Card({
         </div>
         {(contact.star || editMode) && (
           <button
-            className="absolute top-4 right-4 text-yellow-500 text-3xl z-10"
+            className="absolute top-4 right-4 text-yellow-500 dark:text-yellow-300 text-3xl z-10"
             onClick={() => setDraftStar(!draftStar)}
             disabled={!editMode}
           >
@@ -257,7 +283,7 @@ export default function Card({
         )}
         {createMode ? (
           <button
-            className="absolute bottom-3 right-3 border-black rounded border w-12 h-12 grid place-items-center z-10"
+            className="absolute bottom-3 right-3 border-black dark:border-white rounded border w-12 h-12 grid place-items-center z-10"
             onClick={handleCreate}
           >
             <FontAwesomeIcon icon={faPlus} className="text-3xl" />
@@ -265,13 +291,13 @@ export default function Card({
         ) : editMode ? (
           <div className="absolute bottom-3 right-3 flex flex-row gap-2 z-10">
             <button
-              className="border-black rounded border w-12 h-12 grid place-items-center"
+              className="border-black dark:border-white rounded border w-12 h-12 grid place-items-center"
               onClick={onDelete}
             >
               <FontAwesomeIcon icon={faTrashAlt} className="text-3xl" />
             </button>
             <button
-              className="border-black rounded border w-12 h-12 grid place-items-center"
+              className="border-black dark:border-white rounded border w-12 h-12 grid place-items-center"
               onClick={exitEditMode}
             >
               <FontAwesomeIcon icon={faCheck} className="text-3xl" />
@@ -279,7 +305,7 @@ export default function Card({
           </div>
         ) : (
           <button
-            className="absolute bottom-3 right-3 border-black rounded border w-12 h-12 grid place-items-center z-10"
+            className="absolute bottom-3 right-3 border-black dark:border-white rounded border w-12 h-12 grid place-items-center z-10"
             onClick={enterEditMode}
           >
             <FontAwesomeIcon icon={faPencilAlt} className="text-3xl" />
@@ -287,7 +313,7 @@ export default function Card({
         )}
         <div
           className={
-            "absolute bg-white transition-all " +
+            "absolute bg-white dark:bg-black transition-all " +
             (editMode || createMode
               ? "inset-2 rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)]"
               : "inset-0 rounded-none")
