@@ -145,6 +145,12 @@ export default function Rolodex() {
   const [referenceType, setReferenceType] = useLocalStorageState<
     "morse" | "nato"
   >("referenceType", { defaultValue: "morse" });
+  const [exportFormat, setExportFormat] = useLocalStorageState<"vcf" | "json">(
+    "exportFormat",
+    {
+      defaultValue: "vcf",
+    }
+  );
 
   const [cards, setCards] = useState<(Contact & { id: string })[] | null>(null);
 
@@ -276,21 +282,47 @@ export default function Rolodex() {
             </div>
           </div>
 
-          <div className="flex flex-row rounded-xl bg-white dark:bg-black p-1 md:self-start">
-            <span className="px-2 py-1">Sort by</span>
-            {SORTS.map((s, i) => (
+          <div className="flex flex-col md:flex-row w-full justify-between gap-2">
+            <div className="flex flex-row rounded-xl bg-white dark:bg-black p-1 md:self-start">
+              <span className="px-2 py-1">Sort by</span>
+              {SORTS.map((s, i) => (
+                <button
+                  key={s.name}
+                  onClick={() => setSort(i)}
+                  className={
+                    sort === i
+                      ? "px-2 py-1 bg-blue-200 dark:bg-blue-800 rounded-lg"
+                      : "px-2 py-1 bg-white dark:bg-black rounded-lg"
+                  }
+                >
+                  {s.name}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex flex-row rounded-xl bg-white dark:bg-black p-1 md:self-start">
+              <span className="px-2 py-1">Export as</span>
               <button
-                key={s.name}
-                onClick={() => setSort(i)}
+                onClick={() => setExportFormat("vcf")}
                 className={
-                  sort === i
+                  exportFormat === "vcf"
                     ? "px-2 py-1 bg-blue-200 dark:bg-blue-800 rounded-lg"
                     : "px-2 py-1 bg-white dark:bg-black rounded-lg"
                 }
               >
-                {s.name}
+                vCard
               </button>
-            ))}
+              <button
+                onClick={() => setExportFormat("json")}
+                className={
+                  exportFormat === "json"
+                    ? "px-2 py-1 bg-blue-200 dark:bg-blue-800 rounded-lg"
+                    : "px-2 py-1 bg-white dark:bg-black rounded-lg"
+                }
+              >
+                JSON
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -337,6 +369,7 @@ export default function Rolodex() {
                 onDelete={makeDeleteHandler(card)}
                 referenceType={referenceType}
                 tab={tag}
+                exportFormat={exportFormat}
               />
             ))}
           <Card
@@ -345,6 +378,7 @@ export default function Rolodex() {
             onEdit={createCard}
             onDelete={() => {}}
             referenceType={referenceType}
+            exportFormat={exportFormat}
           />
         </ViewComponent>
       ) : (

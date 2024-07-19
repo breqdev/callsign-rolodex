@@ -1,5 +1,6 @@
 import {
   faCheck,
+  faDownload,
   faPencilAlt,
   faPlus,
   faStar as faStarSolid,
@@ -10,6 +11,7 @@ import { Contact } from "./contact";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import useSWR from "swr";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { generateJson, generateVCard } from "./export";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -74,6 +76,7 @@ export default function Card({
   createMode = false,
   referenceType,
   tab,
+  exportFormat,
 }: {
   contact: Contact;
   onEdit: (c: Contact) => void;
@@ -81,6 +84,7 @@ export default function Card({
   createMode?: boolean;
   referenceType: "morse" | "nato";
   tab?: React.ReactNode;
+  exportFormat: "vcf" | "json";
 }) {
   const { data: dmr } = useSWR(
     contact
@@ -282,12 +286,14 @@ export default function Card({
           </button>
         )}
         {createMode ? (
-          <button
-            className="absolute bottom-3 right-3 border-black dark:border-white rounded border w-12 h-12 grid place-items-center z-10"
-            onClick={handleCreate}
-          >
-            <FontAwesomeIcon icon={faPlus} className="text-3xl" />
-          </button>
+          <div className="absolute bottom-3 right-3 flex flex-row gap-2 z-10">
+            <button
+              className="border-black dark:border-white rounded border w-12 h-12 grid place-items-center"
+              onClick={handleCreate}
+            >
+              <FontAwesomeIcon icon={faPlus} className="text-3xl" />
+            </button>
+          </div>
         ) : editMode ? (
           <div className="absolute bottom-3 right-3 flex flex-row gap-2 z-10">
             <button
@@ -304,12 +310,29 @@ export default function Card({
             </button>
           </div>
         ) : (
-          <button
-            className="absolute bottom-3 right-3 border-black dark:border-white rounded border w-12 h-12 grid place-items-center z-10"
-            onClick={enterEditMode}
-          >
-            <FontAwesomeIcon icon={faPencilAlt} className="text-3xl" />
-          </button>
+          <div className="absolute bottom-3 right-3 flex flex-row gap-2 z-10">
+            <button
+              className="border-black dark:border-white rounded border w-12 h-12 grid place-items-center"
+              onClick={enterEditMode}
+            >
+              <FontAwesomeIcon icon={faPencilAlt} className="text-3xl" />
+            </button>
+            <button
+              className="border-black dark:border-white rounded border w-12 h-12 grid place-items-center"
+              onClick={async () => {
+                const exporter =
+                  exportFormat === "vcf" ? generateVCard : generateJson;
+                const blob = await exporter(contact);
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${contact.callsign}.${exportFormat}`;
+                a.click();
+              }}
+            >
+              <FontAwesomeIcon icon={faDownload} className="text-3xl" />
+            </button>
+          </div>
         )}
         <div
           className={
