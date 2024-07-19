@@ -14,6 +14,7 @@ import {
 } from "firebase/firestore";
 import SORTS from "./sorts";
 import { generateJson, generateVCard, generateZip } from "./export";
+import { importJson, importVCard, importZip } from "./import";
 
 function GridView({ children }: { children: React.ReactNode }) {
   return (
@@ -345,6 +346,38 @@ export default function Rolodex() {
                 }}
               >
                 Export All
+              </button>
+
+              <button
+                className="bg-white dark:bg-black rounded-lg px-2 py-1 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+                onClick={async () => {
+                  const input = document.createElement("input");
+                  input.type = "file";
+                  input.accept = ".json,.vcf,.zip";
+
+                  input.addEventListener("change", async () => {
+                    if (input.files === null) {
+                      return;
+                    }
+
+                    const file = input.files[0];
+
+                    if (file.name.endsWith(".vcf")) {
+                      const contact = await importVCard(file);
+                      createCard(contact);
+                    } else if (file.name.endsWith(".json")) {
+                      const contact = await importJson(file);
+                      createCard(contact);
+                    } else if (file.name.endsWith(".zip")) {
+                      const contacts = await importZip(file);
+                      contacts.forEach(createCard);
+                    }
+                  });
+
+                  input.click();
+                }}
+              >
+                Import...
               </button>
             </div>
           </div>
