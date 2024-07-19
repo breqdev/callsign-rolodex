@@ -13,6 +13,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 import SORTS from "./sorts";
+import { generateJson, generateVCard, generateZip } from "./export";
 
 function GridView({ children }: { children: React.ReactNode }) {
   return (
@@ -300,27 +301,50 @@ export default function Rolodex() {
               ))}
             </div>
 
-            <div className="flex flex-row rounded-xl bg-white dark:bg-black p-1 md:self-start">
-              <span className="px-2 py-1">Export as</span>
+            <div className="flex flex-row gap-2">
+              <div className="flex flex-row rounded-xl bg-white dark:bg-black p-1 md:self-start">
+                <span className="px-2 py-1">Export as</span>
+                <button
+                  onClick={() => setExportFormat("vcf")}
+                  className={
+                    exportFormat === "vcf"
+                      ? "px-2 py-1 bg-blue-200 dark:bg-blue-800 rounded-lg"
+                      : "px-2 py-1 bg-white dark:bg-black rounded-lg"
+                  }
+                >
+                  vCard
+                </button>
+                <button
+                  onClick={() => setExportFormat("json")}
+                  className={
+                    exportFormat === "json"
+                      ? "px-2 py-1 bg-blue-200 dark:bg-blue-800 rounded-lg"
+                      : "px-2 py-1 bg-white dark:bg-black rounded-lg"
+                  }
+                >
+                  JSON
+                </button>
+              </div>
+
               <button
-                onClick={() => setExportFormat("vcf")}
-                className={
-                  exportFormat === "vcf"
-                    ? "px-2 py-1 bg-blue-200 dark:bg-blue-800 rounded-lg"
-                    : "px-2 py-1 bg-white dark:bg-black rounded-lg"
-                }
+                className="bg-white dark:bg-black rounded-lg px-2 py-1 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+                onClick={async () => {
+                  if (cards === null) {
+                    return;
+                  }
+
+                  const exporter =
+                    exportFormat === "vcf" ? generateVCard : generateJson;
+
+                  const zip = await generateZip(cards, exporter);
+                  const url = URL.createObjectURL(zip);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = "contacts.zip";
+                  a.click();
+                }}
               >
-                vCard
-              </button>
-              <button
-                onClick={() => setExportFormat("json")}
-                className={
-                  exportFormat === "json"
-                    ? "px-2 py-1 bg-blue-200 dark:bg-blue-800 rounded-lg"
-                    : "px-2 py-1 bg-white dark:bg-black rounded-lg"
-                }
-              >
-                JSON
+                Export All
               </button>
             </div>
           </div>

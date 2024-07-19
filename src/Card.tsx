@@ -298,15 +298,15 @@ export default function Card({
           <div className="absolute bottom-3 right-3 flex flex-row gap-2 z-10">
             <button
               className="border-black dark:border-white rounded border w-12 h-12 grid place-items-center"
-              onClick={onDelete}
-            >
-              <FontAwesomeIcon icon={faTrashAlt} className="text-3xl" />
-            </button>
-            <button
-              className="border-black dark:border-white rounded border w-12 h-12 grid place-items-center"
               onClick={exitEditMode}
             >
               <FontAwesomeIcon icon={faCheck} className="text-3xl" />
+            </button>
+            <button
+              className="border-black dark:border-white rounded border w-12 h-12 grid place-items-center"
+              onClick={onDelete}
+            >
+              <FontAwesomeIcon icon={faTrashAlt} className="text-3xl" />
             </button>
           </div>
         ) : (
