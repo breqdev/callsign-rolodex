@@ -16,7 +16,7 @@ type Sort = {
 
 const SORTS: Sort[] = [
   {
-    name: "Star",
+    name: "Starred",
     impl: (a, b) => {
       if (a.star && !b.star) return -1;
       if (!a.star && b.star) return 1;
@@ -61,7 +61,7 @@ const SORTS: Sort[] = [
     },
   },
   {
-    name: "Call",
+    name: "Callsign",
     impl: (a, b) => a.callsign.localeCompare(b.callsign),
   },
 ];

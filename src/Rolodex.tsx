@@ -13,6 +13,8 @@ import {
 } from "firebase/firestore";
 import SORTS from "./sorts";
 import { SettingsComponent, SettingsContext } from "./Settings";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCog } from "@fortawesome/free-solid-svg-icons";
 
 function GridView({ children }: { children: React.ReactNode }) {
   return (
@@ -201,6 +203,8 @@ export default function Rolodex() {
 
   const [query, setQuery] = useState("");
 
+  const [expanded, setExpanded] = useState(false);
+
   return (
     <div className="flex flex-col h-full p-4 items-stretch bg-white text-black dark:bg-black dark:text-white">
       <div className="mt-4 flex flex-col max-w-3xl mx-auto p-4 rounded-2xl bg-gray-200 dark:bg-gray-600 font-display gap-2 w-full">
@@ -214,10 +218,21 @@ export default function Rolodex() {
             >
               logout
             </button>
+
+            <button className="md:hidden text-xl">
+              <FontAwesomeIcon
+                icon={faCog}
+                onClick={() => setExpanded(!expanded)}
+              />
+            </button>
           </div>
         </div>
 
-        <SettingsComponent cards={cards} createCard={createCard} />
+        <SettingsComponent
+          cards={cards}
+          createCard={createCard}
+          expanded={expanded}
+        />
       </div>
 
       {view !== "column" && (

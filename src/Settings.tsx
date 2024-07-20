@@ -73,12 +73,43 @@ export default function SettingsProvider({
   );
 }
 
+function Dropdown<T extends string>({
+  label,
+  options,
+  selected,
+  setSelected,
+}: {
+  label: string;
+  options: readonly { readonly name: string; readonly value: T }[];
+  selected: T;
+  setSelected: (value: T) => void;
+}) {
+  return (
+    <div className="flex flex-row md:flex-col justify-between items-center gap-1">
+      <span>{label}</span>
+      <select
+        value={selected}
+        onChange={(e) => setSelected(e.target.value as T)}
+        className="border-b-2 border-black text-xl py-1"
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.name}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 export function SettingsComponent({
   cards,
   createCard,
+  expanded,
 }: {
   cards: Contact[] | null;
   createCard: (c: Contact) => void;
+  expanded: boolean;
 }) {
   const {
     view,
@@ -92,146 +123,94 @@ export function SettingsComponent({
   } = useContext(SettingsContext);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className={"flex-col gap-2 md:flex " + (expanded ? "flex" : "hidden")}>
       <div className="flex flex-col md:flex-row w-full justify-between gap-2">
-        <div className="flex flex-row rounded-xl bg-white dark:bg-black p-1">
-          <span className="px-2 py-1">View as</span>
-          {VIEWS.map((s) => (
-            <button
-              key={s.name}
-              onClick={() => setView(s.value)}
-              className={
-                view === s.value
-                  ? "px-2 py-1 bg-blue-200 dark:bg-blue-800 rounded-lg"
-                  : "px-2 py-1 bg-white dark:bg-black rounded-lg"
-              }
-            >
-              {s.name}
-            </button>
-          ))}
-        </div>
+        <Dropdown
+          label="View as"
+          options={VIEWS}
+          selected={view}
+          setSelected={setView}
+        />
 
-        <div className="flex flex-row rounded-xl bg-white dark:bg-black p-1">
-          <span className="px-2 py-1">Hint mode</span>
-          <button
-            onClick={() => setReferenceType("morse")}
-            className={
-              referenceType === "morse"
-                ? "px-2 py-1 bg-blue-200 dark:bg-blue-800 rounded-lg"
-                : "px-2 py-1 bg-white dark:bg-black rounded-lg"
+        <Dropdown
+          label="Hint mode"
+          options={[
+            { name: "Morse Code", value: "morse" },
+            { name: "NATO Phonetics", value: "nato" },
+          ]}
+          selected={referenceType}
+          setSelected={setReferenceType}
+        />
+
+        <Dropdown
+          label="Sort by"
+          options={SORTS.map((s, i) => ({ name: s.name, value: i.toString() }))}
+          selected={sort.toString()}
+          setSelected={(s) => setSort(parseInt(s))}
+        />
+
+        <Dropdown
+          label="Export as"
+          options={[
+            { name: "vCard", value: "vcf" },
+            { name: "JSON", value: "json" },
+          ]}
+          selected={exportFormat}
+          setSelected={setExportFormat}
+        />
+
+        <button
+          className="bg-white dark:bg-black rounded-lg px-2 py-1 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+          onClick={async () => {
+            if (cards === null) {
+              return;
             }
-          >
-            Morse Code
-          </button>
-          <button
-            onClick={() => setReferenceType("nato")}
-            className={
-              referenceType === "nato"
-                ? "px-2 py-1 bg-blue-200 dark:bg-blue-800 rounded-lg"
-                : "px-2 py-1 bg-white dark:bg-black rounded-lg"
-            }
-          >
-            NATO Phonetics
-          </button>
-        </div>
-      </div>
 
-      <div className="flex flex-col md:flex-row w-full justify-between gap-2">
-        <div className="flex flex-row rounded-xl bg-white dark:bg-black p-1 md:self-start">
-          <span className="px-2 py-1">Sort by</span>
-          {SORTS.map((s, i) => (
-            <button
-              key={s.name}
-              onClick={() => setSort(i)}
-              className={
-                sort === i
-                  ? "px-2 py-1 bg-blue-200 dark:bg-blue-800 rounded-lg"
-                  : "px-2 py-1 bg-white dark:bg-black rounded-lg"
-              }
-            >
-              {s.name}
-            </button>
-          ))}
-        </div>
+            const exporter =
+              exportFormat === "vcf" ? generateVCard : generateJson;
 
-        <div className="flex flex-row gap-2">
-          <div className="flex flex-row rounded-xl bg-white dark:bg-black p-1 md:self-start">
-            <span className="px-2 py-1">Export as</span>
-            <button
-              onClick={() => setExportFormat("vcf")}
-              className={
-                exportFormat === "vcf"
-                  ? "px-2 py-1 bg-blue-200 dark:bg-blue-800 rounded-lg"
-                  : "px-2 py-1 bg-white dark:bg-black rounded-lg"
-              }
-            >
-              vCard
-            </button>
-            <button
-              onClick={() => setExportFormat("json")}
-              className={
-                exportFormat === "json"
-                  ? "px-2 py-1 bg-blue-200 dark:bg-blue-800 rounded-lg"
-                  : "px-2 py-1 bg-white dark:bg-black rounded-lg"
-              }
-            >
-              JSON
-            </button>
-          </div>
+            const zip = await generateZip(cards, exporter);
+            const url = URL.createObjectURL(zip);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "contacts.zip";
+            a.click();
+          }}
+        >
+          Export All
+        </button>
 
-          <button
-            className="bg-white dark:bg-black rounded-lg px-2 py-1 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
-            onClick={async () => {
-              if (cards === null) {
+        <button
+          className="bg-white dark:bg-black rounded-lg px-2 py-1 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+          onClick={async () => {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = ".json,.vcf,.zip";
+
+            input.addEventListener("change", async () => {
+              if (input.files === null) {
                 return;
               }
 
-              const exporter =
-                exportFormat === "vcf" ? generateVCard : generateJson;
+              const file = input.files[0];
 
-              const zip = await generateZip(cards, exporter);
-              const url = URL.createObjectURL(zip);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = "contacts.zip";
-              a.click();
-            }}
-          >
-            Export All
-          </button>
+              if (file.name.endsWith(".vcf")) {
+                const contact = await importVCard(file);
+                createCard(contact);
+              } else if (file.name.endsWith(".json")) {
+                const contact = await importJson(file);
+                createCard(contact);
+              } else if (file.name.endsWith(".zip")) {
+                const contacts = await importZip(file);
+                contacts.forEach(createCard);
+              }
+            });
 
-          <button
-            className="bg-white dark:bg-black rounded-lg px-2 py-1 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
-            onClick={async () => {
-              const input = document.createElement("input");
-              input.type = "file";
-              input.accept = ".json,.vcf,.zip";
-
-              input.addEventListener("change", async () => {
-                if (input.files === null) {
-                  return;
-                }
-
-                const file = input.files[0];
-
-                if (file.name.endsWith(".vcf")) {
-                  const contact = await importVCard(file);
-                  createCard(contact);
-                } else if (file.name.endsWith(".json")) {
-                  const contact = await importJson(file);
-                  createCard(contact);
-                } else if (file.name.endsWith(".zip")) {
-                  const contacts = await importZip(file);
-                  contacts.forEach(createCard);
-                }
-              });
-
-              input.click();
-            }}
-          >
-            Import...
-          </button>
-        </div>
+            input.click();
+          }}
+        >
+          Import...
+        </button>
       </div>
     </div>
   );
