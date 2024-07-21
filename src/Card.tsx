@@ -443,7 +443,10 @@ export default function Card({
       {tab && (
         <div
           className="absolute top-0 left-0 -mt-8 h-16 w-24  -z-10 rounded-t-2xl flex justify-center items-start"
-          style={{ backgroundColor: THEMES[theme].tab }}
+          style={{
+            backgroundColor: THEMES[theme].tab,
+            color: THEMES[theme].tabLabel,
+          }}
         >
           <span className="text-xl mt-px">{tab}</span>
         </div>
