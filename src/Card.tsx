@@ -274,6 +274,7 @@ export default function Card({
   //       .removeEventListener("change", listener);
   // }, []);
 
+  // [TODO] The `aspect-[85.60/53.98]` can cause issues if there are too many tags for a single row... maybe s
   return (
     <div
       className="aspect-[85.60/53.98] relative flex-shrink-0 border-2 rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)] transition-colors duration-300"
@@ -364,14 +365,15 @@ export default function Card({
             </Field>
           )}
           {contact.tags?.length > 0 || editMode ? (
-              <Field label="TAGS">
-                {(contact.tags || editMode) && (
-                  <Tags createMode={createMode} editMode={editMode} draftTags={draftTags} setDraftTags={setDraftTags}/>
-                )}               
-              </Field>
-
+            <Field label="TAGS">
+              {(contact.tags || editMode) && (
+                <Tags createMode={createMode} editMode={editMode} draftTags={draftTags} setDraftTags={setDraftTags}/>
+              )}
+            </Field>
           ) : null}
         </div>
+
+
         {(contact.star || editMode) && (
           <button
             className="absolute top-4 right-4 text-3xl z-10"
@@ -485,31 +487,30 @@ function Tags({createMode, editMode, draftTags, setDraftTags}: {
   );
 
   return <>
+  <div className="flex w-50 flex-nowrap overflow-x-auto">
     {createMode || editMode ? (
         <>
-          <div className="flex">
-            {draftTags.map((x, index) => {
-              return <Tag draftTags={draftTags} setDraftTags={setDraftTags} index={index}/>
-            })}
-          </div>
-          
             <Input
-              className="text-lg"
+              className="text-lg font-mono"
               value={draftTag}
               onChange={(e) => setDraftTag(e.target.value)}
               onKeyDown={handleInputKeyDown}
               placeholder=""
               disabled={!editMode}       
             />
+            {draftTags.map((x, index) => {
+              return <Tag draftTags={draftTags} setDraftTags={setDraftTags} index={index}/>
+            })}  
+
+
         </>
       ) : (
-        <div className="flex">
-          {draftTags.map((_, index) => {
-            return <Tag draftTags={draftTags} setDraftTags={setDraftTags} index={index}/>
-          })}
-        </div>
+        draftTags.map((_, index) => {
+          return <Tag draftTags={draftTags} setDraftTags={setDraftTags} index={index}/>
+        })
       )
     }
+    </div>
   </>
 }
 
@@ -519,7 +520,7 @@ function Tag({draftTags, setDraftTags, index}: {
   index: number
 }) {
   return <>
-    <div>
+    <div className="mx-1">
       {draftTags[index]}
     </div>
   </>
