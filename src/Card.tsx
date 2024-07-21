@@ -184,6 +184,7 @@ export default function Card({
   const [editMode, setEditMode] = useState(createMode);
   const [draftCallsign, setDraftCallsign] = useState("");
   const [draftName, setDraftName] = useState("");
+  const [draftTags, setDraftTags] = useState([""]);
   const [draftWebsite, setDraftWebsite] = useState("");
   const [draftStar, setDraftStar] = useState(false);
 
@@ -191,6 +192,7 @@ export default function Card({
     setEditMode(true);
     setDraftCallsign(contact?.callsign || "");
     setDraftName(contact?.name || "");
+    setDraftTags(contact?.tags || []);
     setDraftWebsite(contact?.website || "");
     setDraftStar(contact?.star || false);
   }, [contact]);
@@ -209,22 +211,25 @@ export default function Card({
     onEdit({
       callsign: draftCallsign,
       name: draftName,
+      tags: draftTags,
       website,
       star: draftStar,
     });
-  }, [draftCallsign, draftName, draftWebsite, draftStar, onEdit]);
+  }, [draftCallsign, draftName, draftTags, draftWebsite, draftStar, onEdit]);
 
   const handleCreate = useCallback(() => {
     onEdit({
       callsign: draftCallsign,
       name: draftName,
+      tags: draftTags,
       website: draftWebsite || undefined,
       star: draftStar,
     });
     setDraftCallsign("");
     setDraftName("");
+    setDraftTags([]);
     setDraftWebsite("");
-  }, [draftCallsign, draftName, draftWebsite, draftStar, onEdit]);
+  }, [draftCallsign, draftName, draftWebsite, draftTags, draftStar, onEdit]);
 
   const displayCallsign = editMode ? draftCallsign : contact.callsign;
   const displayName = editMode ? draftName : contact.name;
@@ -244,6 +249,7 @@ export default function Card({
     },
     [createMode, handleCreate, exitEditMode]
   );
+
 
   // useEffect(() => {
   //   if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
@@ -357,6 +363,14 @@ export default function Card({
               )}
             </Field>
           )}
+          {contact.tags?.length > 0 || editMode ? (
+              <Field label="TAGS">
+                {(contact.tags || editMode) && (
+                  <Tags createMode={createMode} editMode={editMode} draftTags={draftTags} setDraftTags={setDraftTags}/>
+                )}               
+              </Field>
+
+          ) : null}
         </div>
         {(contact.star || editMode) && (
           <button
@@ -450,4 +464,63 @@ export default function Card({
       )}
     </div>
   );
+}
+
+function Tags({createMode, editMode, draftTags, setDraftTags}: {
+  createMode: boolean,
+  editMode: boolean,
+  draftTags: string[],
+  setDraftTags: React.Dispatch<React.SetStateAction<string[]>>
+}) {
+  const [draftTag, setDraftTag] = useState("");
+
+  const handleInputKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter") {
+        setDraftTags([...draftTags, draftTag]);
+        setDraftTag("");
+      }
+    },
+    [draftTags, draftTag, setDraftTags]
+  );
+
+  return <>
+    {createMode || editMode ? (
+        <>
+          <div className="flex">
+            {draftTags.map((x, index) => {
+              return <Tag draftTags={draftTags} setDraftTags={setDraftTags} index={index}/>
+            })}
+          </div>
+          
+            <Input
+              className="text-lg"
+              value={draftTag}
+              onChange={(e) => setDraftTag(e.target.value)}
+              onKeyDown={handleInputKeyDown}
+              placeholder=""
+              disabled={!editMode}       
+            />
+        </>
+      ) : (
+        <div className="flex">
+          {draftTags.map((_, index) => {
+            return <Tag draftTags={draftTags} setDraftTags={setDraftTags} index={index}/>
+          })}
+        </div>
+      )
+    }
+  </>
+}
+
+function Tag({draftTags, setDraftTags, index}: {
+  draftTags: string[],
+  setDraftTags: React.Dispatch<React.SetStateAction<string[]>>,
+  index: number
+}) {
+  return <>
+    <div>
+      {draftTags[index]}
+    </div>
+  </>
 }
