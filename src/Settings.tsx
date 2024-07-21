@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import useLocalStorageState from "use-local-storage-state";
 import SORTS from "./sorts";
 import { Contact } from "./contact";
@@ -16,6 +16,29 @@ const VIEWS = [
   },
 ] as const;
 
+export const THEMES = [
+  {
+    name: "light",
+    label: "Light",
+    dark: false,
+    color: "#000000",
+    secondary: "#9ca3af",
+    background: "#ffffff",
+    star: "#eab308",
+    tab: "#bfdbfe",
+  },
+  {
+    name: "dark",
+    label: "Dark",
+    dark: true,
+    color: "#ffffff",
+    secondary: "#9ca3af",
+    background: "#000000",
+    star: "#fde047",
+    tab: "#1e40af",
+  },
+];
+
 export const SettingsContext = React.createContext<{
   view: "grid" | "column";
   setView: (view: "grid" | "column") => void;
@@ -25,6 +48,8 @@ export const SettingsContext = React.createContext<{
   setReferenceType: (referenceType: "morse" | "nato") => void;
   exportFormat: "json" | "vcf";
   setExportFormat: (exportFormat: "json" | "vcf") => void;
+  theme: number;
+  setTheme: (theme: number) => void;
 }>({
   view: "grid",
   setView: () => {},
@@ -34,6 +59,8 @@ export const SettingsContext = React.createContext<{
   setReferenceType: () => {},
   exportFormat: "json",
   setExportFormat: () => {},
+  theme: 0,
+  setTheme: () => {},
 });
 
 export default function SettingsProvider({
@@ -54,6 +81,13 @@ export default function SettingsProvider({
       defaultValue: "vcf",
     }
   );
+  const [theme, setTheme] = useLocalStorageState<number>("theme", {
+    defaultValue: 0,
+  });
+
+  useEffect(() => {
+    document.body.classList.toggle("dark", THEMES[theme].dark);
+  }, [theme]);
 
   return (
     <SettingsContext.Provider
@@ -66,6 +100,8 @@ export default function SettingsProvider({
         setReferenceType,
         exportFormat,
         setExportFormat,
+        theme,
+        setTheme,
       }}
     >
       {children}
@@ -90,7 +126,7 @@ function Dropdown<T extends string>({
       <select
         value={selected}
         onChange={(e) => setSelected(e.target.value as T)}
-        className="border-b-2 border-black text-xl py-1"
+        className="border-b-2 border-black dark:border-white text-xl py-1 bg-transparent"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
@@ -120,6 +156,8 @@ export function SettingsComponent({
     setReferenceType,
     exportFormat,
     setExportFormat,
+    theme,
+    setTheme,
   } = useContext(SettingsContext);
 
   return (
@@ -157,6 +195,16 @@ export function SettingsComponent({
           ]}
           selected={exportFormat}
           setSelected={setExportFormat}
+        />
+
+        <Dropdown
+          label="Theme"
+          options={THEMES.map((t, i) => ({
+            name: t.label,
+            value: i.toString(),
+          }))}
+          selected={theme.toString()}
+          setSelected={(s) => setTheme(parseInt(s))}
         />
 
         <button
