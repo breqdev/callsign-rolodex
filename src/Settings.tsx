@@ -4,6 +4,7 @@ import SORTS from "./sorts";
 import { Contact } from "./contact";
 import { generateJson, generateVCard, generateZip } from "./export";
 import { importJson, importVCard, importZip } from "./import";
+import THEMES from "./themes";
 
 const VIEWS = [
   {
@@ -15,29 +16,6 @@ const VIEWS = [
     value: "column",
   },
 ] as const;
-
-export const THEMES = [
-  {
-    name: "light",
-    label: "Light",
-    dark: false,
-    color: "#000000",
-    secondary: "#9ca3af",
-    background: "#ffffff",
-    star: "#eab308",
-    tab: "#bfdbfe",
-  },
-  {
-    name: "dark",
-    label: "Dark",
-    dark: true,
-    color: "#ffffff",
-    secondary: "#9ca3af",
-    background: "#000000",
-    star: "#fde047",
-    tab: "#1e40af",
-  },
-];
 
 export const SettingsContext = React.createContext<{
   view: "grid" | "column";

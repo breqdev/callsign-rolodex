@@ -20,7 +20,8 @@ import {
   useState,
 } from "react";
 import { generateJson, generateVCard } from "./export";
-import { SettingsContext, THEMES } from "./Settings";
+import { SettingsContext } from "./Settings";
+import THEMES from "./themes";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -271,7 +272,7 @@ export default function Card({
     <div
       className="aspect-[85.60/53.98] relative flex-shrink-0 border-2 rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)] transition-colors duration-300"
       style={{
-        background: THEMES[theme].background,
+        background: THEMES[theme].gradient ?? THEMES[theme].background,
         borderColor: THEMES[theme].color,
         color: THEMES[theme].color,
       }}
@@ -434,7 +435,9 @@ export default function Card({
               ? "inset-2 rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)]"
               : "inset-0 rounded-none")
           }
-          style={{ background: THEMES[theme].background }}
+          style={{
+            background: THEMES[theme].gradient ?? THEMES[theme].background,
+          }}
         />
       </div>
       {tab && (
