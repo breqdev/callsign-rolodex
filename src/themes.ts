@@ -114,6 +114,17 @@ const THEMES = [
     star: "#3B3C6E",
     tab: "#bfdbfe",
   },
+  {
+    name: "canada",
+    label: "Canada",
+    dark: false,
+    color: "#000000",
+    secondary: "#d52b1e",
+    background: "#ffffff",
+    star: "#d52b1e",
+    tab: "#d52b1e",
+    gradient: "center / cover no-repeat url(/canada.svg)",
+  },
 ];
 
 export default THEMES;
