@@ -209,7 +209,7 @@ export default function Rolodex() {
     <div className="flex flex-col h-full p-4 items-stretch bg-white text-black dark:bg-black dark:text-white">
       <div className="mt-4 flex flex-col max-w-3xl mx-auto p-4 rounded-2xl bg-gray-200 dark:bg-gray-600 font-display gap-2 w-full">
         <div className="flex flex-row w-full justify-between">
-          <h1 className="font-mono text-3xl">rolodex</h1>
+          <h1 className="font-mono text-4xl">rolodex</h1>
           <div className="flex flex-row gap-2 items-center">
             <span>{user?.email}</span>
             <button
