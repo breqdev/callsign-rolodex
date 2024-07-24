@@ -151,8 +151,8 @@ export function SettingsComponent({
         <Dropdown
           label="Hint mode"
           options={[
-            { name: "Morse Code", value: "morse" },
-            { name: "NATO Phonetics", value: "nato" },
+            { name: "Morse", value: "morse" },
+            { name: "NATO", value: "nato" },
           ]}
           selected={referenceType}
           setSelected={setReferenceType}

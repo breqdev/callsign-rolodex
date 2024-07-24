@@ -8,6 +8,7 @@ const THEMES = [
     background: "#ffffff",
     star: "#eab308",
     tab: "#bfdbfe",
+    tabLabel: "#000000",
   },
   {
     name: "dark",
@@ -18,6 +19,7 @@ const THEMES = [
     background: "#000000",
     star: "#fde047",
     tab: "#1e40af",
+    tabLabel: "#ffffff",
   },
   {
     name: "dim",
@@ -28,6 +30,7 @@ const THEMES = [
     background: "#1f2937",
     star: "#fde047",
     tab: "#1e40af",
+    tabLabel: "#ffffff",
   },
   {
     name: "pink",
@@ -37,7 +40,8 @@ const THEMES = [
     secondary: "#475569",
     background: "#fbcfe8",
     star: "#000000",
-    tab: "#bfdbfe",
+    tab: "#000000",
+    tabLabel: "#fbcfe8",
   },
   {
     name: "hacker",
@@ -47,7 +51,8 @@ const THEMES = [
     secondary: "#65a30d",
     background: "#000000",
     star: "#bef264",
-    tab: "#1e40af",
+    tab: "#bef264",
+    tabLabel: "#000000",
   },
   {
     name: "purple",
@@ -57,7 +62,8 @@ const THEMES = [
     secondary: "#c4b5fd",
     background: "#5b21b6",
     star: "#ede9fe",
-    tab: "#5b21b6",
+    tab: "#ede9fe",
+    tabLabel: "#5b21b6",
   },
   {
     name: "silver",
@@ -67,7 +73,8 @@ const THEMES = [
     secondary: "#475569",
     background: "#e2e8f0",
     star: "#475569",
-    tab: "#bfdbfe",
+    tab: "#475569",
+    tabLabel: "#ffffff",
   },
   {
     name: "trans",
@@ -77,7 +84,8 @@ const THEMES = [
     secondary: "#9ca3af",
     background: "#ffffff",
     star: "#eab308",
-    tab: "#bfdbfe",
+    tab: "#5BCEFA",
+    tabLabel: "#000000",
     gradient:
       "linear-gradient(-45deg, #5BCEFA, #5BCEFA, #ffffff, #ffffff, #F5A9B8, #F5A9B8)",
   },
@@ -89,7 +97,8 @@ const THEMES = [
     secondary: "#ffffff",
     background: "#ffffff",
     star: "#fd9855",
-    tab: "#bfdbfe",
+    tab: "#a20161",
+    tabLabel: "#ffffff",
     gradient:
       "linear-gradient(45deg, #d42c00, #fd9855, #ffffff, #ffffff, #d161a2, #a20161)",
   },
@@ -102,6 +111,7 @@ const THEMES = [
     background: "#000000",
     star: "#D60270",
     tab: "#0038A8",
+    tabLabel: "#ffffff",
     gradient: "linear-gradient(45deg, #D60270, #9B4F96, #0038A8)",
   },
   {
@@ -113,6 +123,7 @@ const THEMES = [
     background: "#EDE8CE",
     star: "#3B3C6E",
     tab: "#bfdbfe",
+    tabLabel: "#00512C",
   },
   {
     name: "canada",
@@ -123,6 +134,7 @@ const THEMES = [
     background: "#ffffff",
     star: "#d52b1e",
     tab: "#d52b1e",
+    tabLabel: "#ffffff",
     gradient: "center / cover no-repeat url(/canada.svg)",
   },
 ];

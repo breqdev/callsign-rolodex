@@ -23,9 +23,8 @@ export async function generateVCard(c: Contact) {
   // there's no field for it, and to my knowledge there's no other software that stores callsigns in .vcf, but we can still strive for standardization
 
   // first approach: vendor namespace
-  // TODO: I am currently waiting on a PEN from IANA
   // https://datatracker.ietf.org/doc/html/rfc6350#section-10.2.2
-  // vcf += `VND-XXXXXX-CALLSIGN:${c.callsign}\n`;
+  vcf += `VND-62187-CALLSIGN:${c.callsign}\n`;
 
   // second approach: X-name
   // https://datatracker.ietf.org/doc/html/rfc6350#section-3.3
