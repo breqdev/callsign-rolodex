@@ -64,6 +64,10 @@ const SORTS: Sort[] = [
     name: "Callsign",
     impl: (a, b) => a.callsign.localeCompare(b.callsign),
   },
+  {
+    name: "Type",
+    impl: (a, b) => a.cardType.localeCompare(b.cardType),
+  }
 ];
 
 export default SORTS;
