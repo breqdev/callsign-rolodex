@@ -5,6 +5,10 @@ import {
   faPlus,
   faStar as faStarSolid,
   faTrashAlt,
+  faTowerBroadcast,
+  faPerson,
+  faArrowUp,
+  faArrowDown
 } from "@fortawesome/free-solid-svg-icons";
 import { faStar as faStarOutline } from "@fortawesome/free-regular-svg-icons";
 import { Contact } from "./contact";
@@ -182,18 +186,29 @@ export default function Card({
   );
 
   const [editMode, setEditMode] = useState(createMode);
+  const [draftCardType, setDraftCardType] = useState("person");
   const [draftCallsign, setDraftCallsign] = useState("");
   const [draftName, setDraftName] = useState("");
-  const [draftTags, setDraftTags] = useState([""]);
   const [draftWebsite, setDraftWebsite] = useState("");
   const [draftStar, setDraftStar] = useState(false);
 
+  const [draftLocation, setDraftLocation] = useState("");
+  const [draftFrequency, setDraftFrequency] = useState("");
+  const [draftOffset, setDraftOffset] = useState("");
+  const [draftToneUp, setDraftToneUp] = useState("");
+  const [draftToneDown, setDraftToneDown] = useState("");
+
   const enterEditMode = useCallback(() => {
     setEditMode(true);
+    setDraftCardType(contact?.cardType || "person");
     setDraftCallsign(contact?.callsign || "");
     setDraftName(contact?.name || "");
-    setDraftTags(contact?.tags || []);
     setDraftWebsite(contact?.website || "");
+    setDraftLocation(contact?.location || "");
+    setDraftFrequency(contact?.frequency?.toString() || "");
+    setDraftOffset(contact?.offset?.toString() || "");
+    setDraftToneUp(contact.toneUp?.toString() || "");
+    setDraftToneDown(contact.toneDown?.toString() || "");
     setDraftStar(contact?.star || false);
   }, [contact]);
 
@@ -208,33 +223,81 @@ export default function Card({
       website = "https://" + website;
     }
 
-    onEdit({
-      callsign: draftCallsign,
-      name: draftName,
-      tags: draftTags,
-      website,
-      star: draftStar,
-    });
-  }, [draftCallsign, draftName, draftTags, draftWebsite, draftStar, onEdit]);
+    if (draftCardType == "person") {
+      onEdit({
+        cardType: "person",
+        callsign: draftCallsign,
+        name: draftName,
+        website,
+        star: draftStar,
+        location: draftLocation,
+      });
+    }
+    else {
+      onEdit({
+        cardType: "repeater",
+        callsign: draftCallsign,
+        name: draftName,
+        website,
+        star: draftStar,
+        location: draftLocation,
+        frequency: draftFrequency != "" ? parseFloat(draftFrequency) : undefined,
+        offset: draftOffset != "" ? parseFloat(draftOffset) : undefined,
+        toneUp: draftToneUp != "" ? parseFloat(draftToneUp) : undefined,
+        toneDown: draftToneDown != "" ? parseFloat(draftToneDown) : undefined,
+      });
+    }
+
+  }, [draftCardType, draftCallsign, draftName, draftWebsite, draftStar, draftLocation, draftFrequency, draftOffset, draftToneUp, draftToneDown, onEdit]);
 
   const handleCreate = useCallback(() => {
-    onEdit({
-      callsign: draftCallsign,
-      name: draftName,
-      tags: draftTags,
-      website: draftWebsite || undefined,
-      star: draftStar,
-    });
+
+    if (draftCardType == "person") {
+      onEdit({
+        cardType: "person",
+        callsign: draftCallsign,
+        name: draftName,
+        website: draftWebsite || undefined,
+        star: draftStar,
+        location: draftLocation,
+      });
+    }
+    else {
+      onEdit({
+        cardType: "repeater",
+        callsign: draftCallsign,
+        name: draftName,
+        website: draftWebsite || undefined,
+        star: draftStar,
+        location: draftLocation,
+        frequency: draftFrequency != "" ? parseFloat(draftFrequency) : undefined,
+        offset: draftOffset != "" ? parseFloat(draftOffset) : undefined,
+        toneUp: draftToneUp != "" ? parseFloat(draftToneUp) : undefined,
+        toneDown: draftToneDown != "" ? parseFloat(draftToneDown) : undefined,
+      });
+    }
+
     setDraftCallsign("");
     setDraftName("");
-    setDraftTags([]);
     setDraftWebsite("");
-  }, [draftCallsign, draftName, draftWebsite, draftTags, draftStar, onEdit]);
+    setDraftLocation("");
+    setDraftFrequency("");
+    setDraftOffset("");
+    setDraftToneUp("");
+    setDraftToneDown("");
+
+  }, [draftCardType, draftCallsign, draftName, draftWebsite, draftStar, draftLocation, draftFrequency, draftOffset, draftToneUp, draftToneDown, onEdit]);
 
   const displayCallsign = editMode ? draftCallsign : contact.callsign;
   const displayName = editMode ? draftName : contact.name;
+  const displayLocation = editMode ? draftLocation : contact.location;
 
   const firstInput = useRef<HTMLInputElement>(null);
+
+  const displayFreq = editMode ? draftFrequency : !Number.isNaN(contact.frequency) && contact.frequency !== undefined ? contact.frequency.toFixed(4).toString() + " MHz" : "";
+  const displayOffset = editMode ? draftOffset : !Number.isNaN(contact.offset) && contact.offset !== undefined ? Math.sign(contact.offset) == -1 ? "-" : "+" + contact.offset.toFixed(2).toString() + " MHz" : "";
+  const displayToneUp = editMode ? draftToneUp : !Number.isNaN(contact.toneUp) && contact.toneUp !== undefined ? contact.toneUp.toFixed(2).toString() + " Hz" : "";
+  const displayToneDown = editMode ? draftToneDown : !Number.isNaN(contact.toneDown) && contact.toneDown !== undefined ? contact.toneDown.toFixed(2).toString() + " Hz": ""
 
   const handleInputKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -274,7 +337,8 @@ export default function Card({
   //       .removeEventListener("change", listener);
   // }, []);
 
-  // [TODO] The `aspect-[85.60/53.98]` can cause issues if there are too many tags for a single row... maybe s
+  // TODO: fix aspect ratio
+  // TODO: add animation to person/repeater slider
   return (
     <div
       className="aspect-[85.60/53.98] relative flex-shrink-0 border-2 rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)] transition-colors duration-300"
@@ -290,106 +354,215 @@ export default function Card({
           background: `${THEMES[theme].color} repeating-linear-gradient(-45deg, transparent, transparent 2px, ${THEMES[theme].background} 2px, ${THEMES[theme].background} 6px)`,
         }}
       >
+ 
         <div className="z-10">
-          <Input
-            className="font-mono text-7xl w-full -my-3"
-            value={displayCallsign}
-            onChange={(e) =>
-              setDraftCallsign(e.target.value.toLocaleUpperCase())
-            }
-            onKeyDown={handleInputKeyDown}
-            placeholder="call"
-            disabled={!editMode}
-            ref={firstInput}
-          />
+          <div className="flex">
+            <div>
+              <Input
+                className="font-mono text-7xl"
+                value={displayCallsign}
+                onChange={(e) =>
+                  setDraftCallsign(e.target.value.toLocaleUpperCase())
+                }
+                onKeyDown={handleInputKeyDown}
+                placeholder="call"
+                disabled={!editMode}
+                ref={firstInput}
+              />
+              {referenceType == "morse" && (
+                <p className="font-morse text-lg select-none flex flex-row gap-2 -my-1 ml-0.5 z-10 h-7">
+                  {[...displayCallsign].map((c, i) => (
+                    <span key={i}>{c}</span>
+                  ))}
+                </p>
+              )}
+              {referenceType == "nato" && (
+                <p className="italic lowercase text-sm select-none flex flex-row gap-2 -my-1 ml-0.5 z-10 h-7">
+                  {[...displayCallsign].map((c, i) => (
+                    <span key={i}>{NATO_ALPHABET[c.toLocaleUpperCase()]}</span>
+                  ))}
+                </p>
+              )}
+            </div>
+            <div className="flex flex-col items-center">
+              <div>
+                {(contact.star || editMode) && (
+                  <button
+                    className="text-3xl"
+                    style={{ color: THEMES[theme].star }}
+                    onClick={() => setDraftStar(!draftStar)}
+                    disabled={!editMode}
+                  >
+                    <FontAwesomeIcon
+                      icon={
+                        (!editMode && contact.star) || (editMode && draftStar)
+                          ? faStarSolid
+                          : faStarOutline
+                      }
+                    />
+                  </button>
+                )}
 
-          {referenceType == "morse" && (
-            <p className="font-morse text-lg select-none flex flex-row gap-2 -my-1 ml-0.5 z-10 h-7">
-              {[...displayCallsign].map((c, i) => (
-                <span key={i}>{c}</span>
-              ))}
-            </p>
+              </div>
+              {editMode ? (
+                <div 
+                  className="rounded-full border-2 grid grid-rows-2 transition float-right"
+                  style={{
+                    background: THEMES[theme].color,
+                    borderColor: THEMES[theme].color,
+                  }}
+                >
+                  <button 
+                    className="p-1 px-2 rounded-full"
+                    style={draftCardType == "person" ? {
+                      background: THEMES[theme].background,
+                      color: THEMES[theme].color
+                    } : {
+                      background: "none",
+                      color: THEMES[theme].background
+                    }}
+                    onClick={() => setDraftCardType("person")}
+                  >
+                    <FontAwesomeIcon icon={faPerson}/>
+                  </button>
+                  <button 
+                    className="p-1 px-2 rounded-full"
+                    style={draftCardType == "repeater" ? {
+                      background: THEMES[theme].background,
+                      color: THEMES[theme].color
+                    } : {
+                      background: "none",
+                      color: THEMES[theme].background
+                    }}
+                    onClick={() => setDraftCardType("repeater")}
+                  >
+                    <FontAwesomeIcon icon={faTowerBroadcast}/>
+                  </button>
+                </div>
+              ) : (
+                contact.cardType == "person" ? (
+                  <FontAwesomeIcon icon={faPerson} className="text-3xl"/>
+                ) : (
+                  <FontAwesomeIcon icon={faTowerBroadcast} className="text-3xl"/>
+                )
+              )}
+            
+            </div>
+          </div>
+          {draftCardType == "person" ? (
+            <Input
+              className="text-3xl -my-1"
+              value={displayName}
+              onChange={(e) => setDraftName(e.target.value)}
+              onKeyDown={handleInputKeyDown}
+              placeholder="name"
+              disabled={!editMode}
+            />
+          ) : (
+            <Input
+              className="text-3xl -my1"
+              value={displayLocation}
+              onChange={(e) => setDraftLocation(e.target.value)}
+              onKeyDown={handleInputKeyDown}
+              placeholder="location"
+              disabled={!editMode}
+            />     
           )}
-          {referenceType == "nato" && (
-            <p className="italic lowercase text-sm select-none flex flex-row gap-2 -my-1 ml-0.5 z-10 h-7">
-              {[...displayCallsign].map((c, i) => (
-                <span key={i}>{NATO_ALPHABET[c.toLocaleUpperCase()]}</span>
-              ))}
-            </p>
-          )}
-          <Input
-            className="text-3xl -my-1"
-            value={displayName}
-            onChange={(e) => setDraftName(e.target.value)}
-            onKeyDown={handleInputKeyDown}
-            placeholder="name"
-            disabled={!editMode}
-          />
+
         </div>
-        <div className="-mb-1 grid grid-cols-[2.1rem,1fr] z-10">
-          {dmr?.count ? (
-            <Field label="DMR">
-              <a
-                href={`https://radioid.net/database/view?id=${dmr.results[0].id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {dmr.results[0].id}
-              </a>
-            </Field>
-          ) : null}
-          {(contact.website || editMode) && (
-            <Field label="WEB">
-              {createMode || editMode ? (
-                <div className="w-36">
+        {draftCardType == "repeater" ? (
+          <div className="z-10 text-sm w-52">
+            <div className="grid grid-cols-2 gap-0">
+              <Input
+                className=""
+                value={displayFreq}
+                onChange={(e) => {setDraftFrequency(e.target.value)}}
+                onKeyDown={handleInputKeyDown}
+                placeholder="frequency"
+                disabled={!editMode}
+              />
+      
+              <Input
+                className=""
+                value={displayOffset}
+                onChange={(e) => {setDraftOffset(e.target.value)}}
+                onKeyDown={handleInputKeyDown}
+                placeholder="offset"
+                disabled={!editMode}
+              />
+              {editMode || contact.toneUp ? (
+                <div className="flex items-center">
+                  { contact.toneDown || editMode ? (
+                    <FontAwesomeIcon icon={faArrowUp} className="text-sm px-1" /> 
+                  ) : null}
                   <Input
-                    className="text-lg"
-                    value={draftWebsite}
-                    onChange={(e) => setDraftWebsite(e.target.value)}
+                    className=""
+                    value={displayToneUp}
+                    onChange={(e) => {setDraftToneUp(e.target.value)}}
                     onKeyDown={handleInputKeyDown}
-                    placeholder=""
+                    placeholder="tone up"
                     disabled={!editMode}
                   />
                 </div>
-              ) : (
+              ) : null}
+              {editMode || contact.toneDown ? (
+                <div className="flex items-center">
+                  <FontAwesomeIcon icon={faArrowDown} className="text-sm px-1" />
+                  <Input
+                    className=""
+                    value={displayToneDown}
+                    onChange={(e) => {setDraftToneDown(e.target.value)}}
+                    onKeyDown={handleInputKeyDown}
+                    placeholder="tone down"
+                    disabled={!editMode}
+                  />
+                </div>
+              ) : null}
+            </div>
+          </div>
+        ) : (
+          <div className="-mb-1 grid grid-cols-[2.1rem,1fr] z-10">
+            {dmr?.count ? (
+              <Field label="DMR">
                 <a
-                  href={contact.website}
+                  href={`https://radioid.net/database/view?id=${dmr.results[0].id}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {contact.website
-                    ?.replace(/https?:\/\//, "")
-                    .replace(/\/$/, "")}
+                  {dmr.results[0].id}
                 </a>
-              )}
-            </Field>
-          )}
-          {contact.tags?.length > 0 || editMode ? (
-            <Field label="TAGS">
-              {(contact.tags || editMode) && (
-                <Tags createMode={createMode} editMode={editMode} draftTags={draftTags} setDraftTags={setDraftTags}/>
-              )}
-            </Field>
-          ) : null}
-        </div>
+              </Field>
+            ) : null}
 
-
-        {(contact.star || editMode) && (
-          <button
-            className="absolute top-4 right-4 text-3xl z-10"
-            style={{ color: THEMES[theme].star }}
-            onClick={() => setDraftStar(!draftStar)}
-            disabled={!editMode}
-          >
-            <FontAwesomeIcon
-              icon={
-                (!editMode && contact.star) || (editMode && draftStar)
-                  ? faStarSolid
-                  : faStarOutline
-              }
-            />
-          </button>
+            {(contact.website || editMode) && (
+              <Field label="WEB">
+                {createMode || editMode ? (
+                  <div className="w-36">
+                    <Input
+                      className="text-lg"
+                      value={draftWebsite}
+                      onChange={(e) => setDraftWebsite(e.target.value)}
+                      onKeyDown={handleInputKeyDown}
+                      placeholder=""
+                      disabled={!editMode}
+                    />
+                  </div>
+                ) : (
+                  <a
+                    href={contact.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {contact.website
+                      ?.replace(/https?:\/\//, "")
+                      .replace(/\/$/, "")}
+                  </a>
+                )}
+              </Field>
+            )}
+          </div>
         )}
+      
         {createMode ? (
           <div className="absolute bottom-3 right-3 flex flex-row gap-2 z-10">
             <button
@@ -469,62 +642,4 @@ export default function Card({
       )}
     </div>
   );
-}
-
-function Tags({createMode, editMode, draftTags, setDraftTags}: {
-  createMode: boolean,
-  editMode: boolean,
-  draftTags: string[],
-  setDraftTags: React.Dispatch<React.SetStateAction<string[]>>
-}) {
-  const [draftTag, setDraftTag] = useState("");
-
-  const handleInputKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") {
-        setDraftTags([...draftTags, draftTag]);
-        setDraftTag("");
-      }
-    },
-    [draftTags, draftTag, setDraftTags]
-  );
-
-  return <>
-  <div className="flex w-50 flex-nowrap overflow-x-auto">
-    {createMode || editMode ? (
-        <>
-            <Input
-              className="text-lg font-mono"
-              value={draftTag}
-              onChange={(e) => setDraftTag(e.target.value)}
-              onKeyDown={handleInputKeyDown}
-              placeholder=""
-              disabled={!editMode}       
-            />
-            {draftTags.map((x, index) => {
-              return <Tag draftTags={draftTags} setDraftTags={setDraftTags} index={index}/>
-            })}  
-
-
-        </>
-      ) : (
-        draftTags.map((_, index) => {
-          return <Tag draftTags={draftTags} setDraftTags={setDraftTags} index={index}/>
-        })
-      )
-    }
-    </div>
-  </>
-}
-
-function Tag({draftTags, setDraftTags, index}: {
-  draftTags: string[],
-  setDraftTags: React.Dispatch<React.SetStateAction<string[]>>,
-  index: number
-}) {
-  return <>
-    <div className="mx-1">
-      {draftTags[index]}
-    </div>
-  </>
 }
