@@ -192,10 +192,9 @@ export default function Card({
   const [draftCardType, setDraftCardType] = useState("person");
   const [draftCallsign, setDraftCallsign] = useState("");
   const [draftName, setDraftName] = useState("");
+  const [draftLocation, setDraftLocation] = useState("");
   const [draftWebsite, setDraftWebsite] = useState("");
   const [draftStar, setDraftStar] = useState(false);
-
-  const [draftLocation, setDraftLocation] = useState("");
   const [draftFrequency, setDraftFrequency] = useState("");
   const [draftOffset, setDraftOffset] = useState("");
   const [draftToneUp, setDraftToneUp] = useState("");
@@ -206,8 +205,8 @@ export default function Card({
     setDraftCardType(contact?.cardType || "person");
     setDraftCallsign(contact?.callsign || "");
     setDraftName(contact?.name || "");
-    setDraftWebsite(contact?.website || "");
     setDraftLocation(contact?.location || "");
+    setDraftWebsite(contact?.website || "");
     setDraftFrequency(contact?.frequency?.toString() || "");
     setDraftOffset(contact?.offset?.toString() || "");
     setDraftToneUp(contact.toneUp?.toString() || "");
@@ -229,21 +228,21 @@ export default function Card({
     if (draftCardType == "person") {
       onEdit({
         cardType: "person",
+        star: draftStar,
         callsign: draftCallsign,
         name: draftName,
-        website,
-        star: draftStar,
         location: draftLocation,
+        website,  
       });
     }
     else {
       onEdit({
         cardType: "repeater",
+        star: draftStar,
         callsign: draftCallsign,
         name: draftName,
-        website,
-        star: draftStar,
         location: draftLocation,
+        website,
         frequency: draftFrequency != "" ? parseFloat(draftFrequency) : undefined,
         offset: draftOffset != "" ? parseFloat(draftOffset) : undefined,
         toneUp: draftToneUp != "" ? parseFloat(draftToneUp) : undefined,
@@ -257,21 +256,21 @@ export default function Card({
     if (draftCardType == "person") {
       onEdit({
         cardType: "person",
+        star: draftStar,
         callsign: draftCallsign,
         name: draftName,
-        website: draftWebsite || undefined,
-        star: draftStar,
         location: draftLocation,
+        website: draftWebsite || undefined,    
       });
     }
     else {
       onEdit({
         cardType: "repeater",
+        star: draftStar,
         callsign: draftCallsign,
         name: draftName,
-        website: draftWebsite || undefined,
-        star: draftStar,
         location: draftLocation,
+        website: draftWebsite || undefined,
         frequency: draftFrequency != "" ? parseFloat(draftFrequency) : undefined,
         offset: draftOffset != "" ? parseFloat(draftOffset) : undefined,
         toneUp: draftToneUp != "" ? parseFloat(draftToneUp) : undefined,
@@ -294,12 +293,13 @@ export default function Card({
   const displayCallsign = editMode ? draftCallsign : contact.callsign;
   const displayName = editMode ? draftName : contact.name;
   const displayLocation = editMode ? draftLocation : contact.location;
-  const firstInput = useRef<HTMLInputElement>(null);
-
+  
   const displayFreq     = editMode ? draftFrequency : (!Number.isNaN(contact.frequency) && contact.frequency !== undefined) ? contact.frequency.toFixed(FREQ_TRAILING).toString() + " MHz" : "";
   const displayOffset   = editMode ? draftOffset    : (!Number.isNaN(contact.offset)    && contact.offset    !== undefined) ? (Math.sign(contact.offset) == -1 ? "-" : "+") + contact.offset.toFixed(2).toString() + " MHz" : "";
   const displayToneUp   = editMode ? draftToneUp    : (!Number.isNaN(contact.toneUp)    && contact.toneUp    !== undefined) ? contact.toneUp.toFixed(TONE_TRAILING).toString()   + " Hz" : "";
   const displayToneDown = editMode ? draftToneDown  : (!Number.isNaN(contact.toneDown)  && contact.toneDown  !== undefined) ? contact.toneDown.toFixed(TONE_TRAILING).toString() + " Hz" : "";
+
+  const firstInput = useRef<HTMLInputElement>(null);
 
   const handleInputKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -314,7 +314,6 @@ export default function Card({
     },
     [createMode, handleCreate, exitEditMode]
   );
-
 
   // useEffect(() => {
   //   if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
@@ -441,8 +440,7 @@ export default function Card({
                 ) : (
                   <FontAwesomeIcon icon={faTowerBroadcast} className="text-3xl"/>
                 )
-              )}
-            
+              )}        
             </div>
           </div>
           {(editMode && draftCardType == "person") || contact.cardType == "person"  ? (
