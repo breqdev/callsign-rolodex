@@ -29,6 +29,9 @@ import THEMES from "./themes";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
+const TONE_TRAILING = 1;
+const FREQ_TRAILING = 4;
+
 function Field({
   label,
   children,
@@ -189,10 +192,9 @@ export default function Card({
   const [draftCardType, setDraftCardType] = useState("person");
   const [draftCallsign, setDraftCallsign] = useState("");
   const [draftName, setDraftName] = useState("");
+  const [draftLocation, setDraftLocation] = useState("");
   const [draftWebsite, setDraftWebsite] = useState("");
   const [draftStar, setDraftStar] = useState(false);
-
-  const [draftLocation, setDraftLocation] = useState("");
   const [draftFrequency, setDraftFrequency] = useState("");
   const [draftOffset, setDraftOffset] = useState("");
   const [draftToneUp, setDraftToneUp] = useState("");
@@ -203,8 +205,8 @@ export default function Card({
     setDraftCardType(contact?.cardType || "person");
     setDraftCallsign(contact?.callsign || "");
     setDraftName(contact?.name || "");
-    setDraftWebsite(contact?.website || "");
     setDraftLocation(contact?.location || "");
+    setDraftWebsite(contact?.website || "");
     setDraftFrequency(contact?.frequency?.toString() || "");
     setDraftOffset(contact?.offset?.toString() || "");
     setDraftToneUp(contact.toneUp?.toString() || "");
@@ -226,21 +228,21 @@ export default function Card({
     if (draftCardType == "person") {
       onEdit({
         cardType: "person",
+        star: draftStar,
         callsign: draftCallsign,
         name: draftName,
-        website,
-        star: draftStar,
         location: draftLocation,
+        website,  
       });
     }
     else {
       onEdit({
         cardType: "repeater",
+        star: draftStar,
         callsign: draftCallsign,
         name: draftName,
-        website,
-        star: draftStar,
         location: draftLocation,
+        website,
         frequency: draftFrequency != "" ? parseFloat(draftFrequency) : undefined,
         offset: draftOffset != "" ? parseFloat(draftOffset) : undefined,
         toneUp: draftToneUp != "" ? parseFloat(draftToneUp) : undefined,
@@ -251,25 +253,24 @@ export default function Card({
   }, [draftCardType, draftCallsign, draftName, draftWebsite, draftStar, draftLocation, draftFrequency, draftOffset, draftToneUp, draftToneDown, onEdit]);
 
   const handleCreate = useCallback(() => {
-
     if (draftCardType == "person") {
       onEdit({
         cardType: "person",
+        star: draftStar,
         callsign: draftCallsign,
         name: draftName,
-        website: draftWebsite || undefined,
-        star: draftStar,
         location: draftLocation,
+        website: draftWebsite || undefined,    
       });
     }
     else {
       onEdit({
         cardType: "repeater",
+        star: draftStar,
         callsign: draftCallsign,
         name: draftName,
-        website: draftWebsite || undefined,
-        star: draftStar,
         location: draftLocation,
+        website: draftWebsite || undefined,
         frequency: draftFrequency != "" ? parseFloat(draftFrequency) : undefined,
         offset: draftOffset != "" ? parseFloat(draftOffset) : undefined,
         toneUp: draftToneUp != "" ? parseFloat(draftToneUp) : undefined,
@@ -277,6 +278,7 @@ export default function Card({
       });
     }
 
+    setDraftCardType("person");
     setDraftCallsign("");
     setDraftName("");
     setDraftWebsite("");
@@ -291,13 +293,13 @@ export default function Card({
   const displayCallsign = editMode ? draftCallsign : contact.callsign;
   const displayName = editMode ? draftName : contact.name;
   const displayLocation = editMode ? draftLocation : contact.location;
+  
+  const displayFreq     = editMode ? draftFrequency : (!Number.isNaN(contact.frequency) && contact.frequency !== undefined) ? contact.frequency.toFixed(FREQ_TRAILING).toString() + " MHz" : "";
+  const displayOffset   = editMode ? draftOffset    : (!Number.isNaN(contact.offset)    && contact.offset    !== undefined) ? (Math.sign(contact.offset) == -1 ? "-" : "+") + contact.offset.toFixed(2).toString() + " MHz" : "";
+  const displayToneUp   = editMode ? draftToneUp    : (!Number.isNaN(contact.toneUp)    && contact.toneUp    !== undefined) ? contact.toneUp.toFixed(TONE_TRAILING).toString()   + " Hz" : "";
+  const displayToneDown = editMode ? draftToneDown  : (!Number.isNaN(contact.toneDown)  && contact.toneDown  !== undefined) ? contact.toneDown.toFixed(TONE_TRAILING).toString() + " Hz" : "";
 
   const firstInput = useRef<HTMLInputElement>(null);
-
-  const displayFreq = editMode ? draftFrequency : !Number.isNaN(contact.frequency) && contact.frequency !== undefined ? contact.frequency.toFixed(4).toString() + " MHz" : "";
-  const displayOffset = editMode ? draftOffset : !Number.isNaN(contact.offset) && contact.offset !== undefined ? Math.sign(contact.offset) == -1 ? "-" : "+" + contact.offset.toFixed(2).toString() + " MHz" : "";
-  const displayToneUp = editMode ? draftToneUp : !Number.isNaN(contact.toneUp) && contact.toneUp !== undefined ? contact.toneUp.toFixed(2).toString() + " Hz" : "";
-  const displayToneDown = editMode ? draftToneDown : !Number.isNaN(contact.toneDown) && contact.toneDown !== undefined ? contact.toneDown.toFixed(2).toString() + " Hz": ""
 
   const handleInputKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -312,7 +314,6 @@ export default function Card({
     },
     [createMode, handleCreate, exitEditMode]
   );
-
 
   // useEffect(() => {
   //   if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
@@ -337,8 +338,6 @@ export default function Card({
   //       .removeEventListener("change", listener);
   // }, []);
 
-  // TODO: fix aspect ratio
-  // TODO: add animation to person/repeater slider
   return (
     <div
       className="aspect-[85.60/53.98] relative flex-shrink-0 border-2 rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)] transition-colors duration-300"
@@ -354,7 +353,6 @@ export default function Card({
           background: `${THEMES[theme].color} repeating-linear-gradient(-45deg, transparent, transparent 2px, ${THEMES[theme].background} 2px, ${THEMES[theme].background} 6px)`,
         }}
       >
- 
         <div className="z-10">
           <div className="flex">
             <div>
@@ -384,8 +382,7 @@ export default function Card({
                 </p>
               )}
             </div>
-            <div className="flex flex-col items-center">
-              <div>
+            <div className="flex flex-col items-center w-28 gap-2">
                 {(contact.star || editMode) && (
                   <button
                     className="text-3xl"
@@ -402,8 +399,6 @@ export default function Card({
                     />
                   </button>
                 )}
-
-              </div>
               {editMode ? (
                 <div 
                   className="rounded-full border-2 grid grid-rows-2 transition float-right"
@@ -413,7 +408,7 @@ export default function Card({
                   }}
                 >
                   <button 
-                    className="p-1 px-2 rounded-full"
+                    className="p-1 px-2 rounded-full transition-all"
                     style={draftCardType == "person" ? {
                       background: THEMES[theme].background,
                       color: THEMES[theme].color
@@ -426,7 +421,7 @@ export default function Card({
                     <FontAwesomeIcon icon={faPerson}/>
                   </button>
                   <button 
-                    className="p-1 px-2 rounded-full"
+                    className="p-1 px-2 rounded-full transition-all"
                     style={draftCardType == "repeater" ? {
                       background: THEMES[theme].background,
                       color: THEMES[theme].color
@@ -441,15 +436,14 @@ export default function Card({
                 </div>
               ) : (
                 contact.cardType == "person" ? (
-                  <FontAwesomeIcon icon={faPerson} className="text-3xl"/>
+                  <FontAwesomeIcon icon={faPerson} className="text-4xl"/>
                 ) : (
                   <FontAwesomeIcon icon={faTowerBroadcast} className="text-3xl"/>
                 )
-              )}
-            
+              )}        
             </div>
           </div>
-          {draftCardType == "person" ? (
+          {(editMode && draftCardType == "person") || contact.cardType == "person"  ? (
             <Input
               className="text-3xl -my-1"
               value={displayName}
@@ -458,7 +452,8 @@ export default function Card({
               placeholder="name"
               disabled={!editMode}
             />
-          ) : (
+          ) : null} 
+          {(editMode && draftCardType == "repeater") || contact.cardType == "repeater" ? (
             <Input
               className="text-3xl -my1"
               value={displayLocation}
@@ -467,29 +462,32 @@ export default function Card({
               placeholder="location"
               disabled={!editMode}
             />     
-          )}
+          ) : null}
 
         </div>
-        {draftCardType == "repeater" ? (
+        {(editMode && draftCardType == "repeater") || contact.cardType == "repeater" ? (
           <div className="z-10 text-sm w-52">
             <div className="grid grid-cols-2 gap-0">
-              <Input
-                className=""
-                value={displayFreq}
-                onChange={(e) => {setDraftFrequency(e.target.value)}}
-                onKeyDown={handleInputKeyDown}
-                placeholder="frequency"
-                disabled={!editMode}
-              />
-      
-              <Input
-                className=""
-                value={displayOffset}
-                onChange={(e) => {setDraftOffset(e.target.value)}}
-                onKeyDown={handleInputKeyDown}
-                placeholder="offset"
-                disabled={!editMode}
-              />
+              {editMode || contact.frequency ? (
+                <Input
+                  className=""
+                  value={displayFreq}
+                  onChange={(e) => {setDraftFrequency(e.target.value)}}
+                  onKeyDown={handleInputKeyDown}
+                  placeholder="frequency"
+                  disabled={!editMode}
+                />
+              ) : null}
+              {editMode || contact.offset ? (
+                <Input
+                  className=""
+                  value={displayOffset}
+                  onChange={(e) => {setDraftOffset(e.target.value)}}
+                  onKeyDown={handleInputKeyDown}
+                  placeholder="offset"
+                  disabled={!editMode}
+                />
+              ) : null}
               {editMode || contact.toneUp ? (
                 <div className="flex items-center">
                   { contact.toneDown || editMode ? (
@@ -500,7 +498,7 @@ export default function Card({
                     value={displayToneUp}
                     onChange={(e) => {setDraftToneUp(e.target.value)}}
                     onKeyDown={handleInputKeyDown}
-                    placeholder="tone up"
+                    placeholder="tone (up)"
                     disabled={!editMode}
                   />
                 </div>
@@ -533,7 +531,6 @@ export default function Card({
                 </a>
               </Field>
             ) : null}
-
             {(contact.website || editMode) && (
               <Field label="WEB">
                 {createMode || editMode ? (
@@ -562,7 +559,6 @@ export default function Card({
             )}
           </div>
         )}
-      
         {createMode ? (
           <div className="absolute bottom-3 right-3 flex flex-row gap-2 z-10">
             <button

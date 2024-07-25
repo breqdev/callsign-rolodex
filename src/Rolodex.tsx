@@ -255,7 +255,10 @@ export default function Rolodex() {
                 const q = query.toLocaleLowerCase();
                 return (
                   c.callsign.toLocaleLowerCase().includes(q) ||
-                  c.name.toLocaleLowerCase().includes(q)
+                  c.name.toLocaleLowerCase().includes(q) ||
+                  // this may cause issues with older cards that may have an undefined location...
+                  c.location.toLocaleLowerCase().includes(q) || 
+                  c.cardType.toLocaleLowerCase().includes(q)
                 );
               }
               return true;
@@ -282,7 +285,7 @@ export default function Rolodex() {
             ))}
           <Card
             createMode
-            contact={{ name: "", callsign: "" }}
+            contact={{ name: "", callsign: "", cardType: "person", location: "" }}
             onEdit={createCard}
             onDelete={() => {}}
             referenceType={referenceType}
