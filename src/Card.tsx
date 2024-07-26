@@ -443,7 +443,7 @@ export default function Card({
               )}        
             </div>
           </div>
-          {(editMode && draftCardType == "person") || contact.cardType == "person"  ? (
+          {(editMode && draftCardType == "person") || (!editMode && contact.cardType == "person") ? (
             <Input
               className="text-3xl -my-1"
               value={displayName}
@@ -453,7 +453,7 @@ export default function Card({
               disabled={!editMode}
             />
           ) : null} 
-          {(editMode && draftCardType == "repeater") || contact.cardType == "repeater" ? (
+          {(editMode && draftCardType == "repeater") || (!editMode && contact.cardType == "repeater") ? (
             <Input
               className="text-3xl -my1"
               value={displayLocation}
@@ -465,7 +465,7 @@ export default function Card({
           ) : null}
 
         </div>
-        {(editMode && draftCardType == "repeater") || contact.cardType == "repeater" ? (
+        {(editMode && draftCardType == "repeater") || (!editMode && contact.cardType == "repeater") ? (
           <div className="z-10 text-sm w-52">
             <div className="grid grid-cols-2 gap-0">
               {editMode || contact.frequency ? (
