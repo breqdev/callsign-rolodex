@@ -7,6 +7,6 @@ export interface Contact {
   website?: string;
   frequency?: number;
   offset?: number;
-  toneUp?: number;   
-  toneDown?: number;
+  tone?: number;   
+  rxtone?: number;
 }

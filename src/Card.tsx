@@ -197,8 +197,8 @@ export default function Card({
   const [draftStar, setDraftStar] = useState(false);
   const [draftFrequency, setDraftFrequency] = useState("");
   const [draftOffset, setDraftOffset] = useState("");
-  const [draftToneUp, setDraftToneUp] = useState("");
-  const [draftToneDown, setDraftToneDown] = useState("");
+  const [draftTone, setDraftTone] = useState("");
+  const [draftRxTone, setDraftRxTone] = useState("");
 
   const enterEditMode = useCallback(() => {
     setEditMode(true);
@@ -209,8 +209,8 @@ export default function Card({
     setDraftWebsite(contact?.website || "");
     setDraftFrequency(contact?.frequency?.toString() || "");
     setDraftOffset(contact?.offset?.toString() || "");
-    setDraftToneUp(contact.toneUp?.toString() || "");
-    setDraftToneDown(contact.toneDown?.toString() || "");
+    setDraftTone(contact.tone?.toString() || "");
+    setDraftRxTone(contact.rxtone?.toString() || "");
     setDraftStar(contact?.star || false);
   }, [contact]);
 
@@ -245,12 +245,12 @@ export default function Card({
         website,
         frequency: draftFrequency != "" ? parseFloat(draftFrequency) : undefined,
         offset: draftOffset != "" ? parseFloat(draftOffset) : undefined,
-        toneUp: draftToneUp != "" ? parseFloat(draftToneUp) : undefined,
-        toneDown: draftToneDown != "" ? parseFloat(draftToneDown) : undefined,
+        tone: draftTone != "" ? parseFloat(draftTone) : undefined,
+        rxtone: draftRxTone != "" ? parseFloat(draftRxTone) : undefined,
       });
     }
 
-  }, [draftCardType, draftCallsign, draftName, draftWebsite, draftStar, draftLocation, draftFrequency, draftOffset, draftToneUp, draftToneDown, onEdit]);
+  }, [draftCardType, draftCallsign, draftName, draftWebsite, draftStar, draftLocation, draftFrequency, draftOffset, draftTone, draftRxTone, onEdit]);
 
   const handleCreate = useCallback(() => {
     if (draftCardType == "person") {
@@ -273,8 +273,8 @@ export default function Card({
         website: draftWebsite || undefined,
         frequency: draftFrequency != "" ? parseFloat(draftFrequency) : undefined,
         offset: draftOffset != "" ? parseFloat(draftOffset) : undefined,
-        toneUp: draftToneUp != "" ? parseFloat(draftToneUp) : undefined,
-        toneDown: draftToneDown != "" ? parseFloat(draftToneDown) : undefined,
+        tone: draftTone != "" ? parseFloat(draftTone) : undefined,
+        rxtone: draftRxTone != "" ? parseFloat(draftRxTone) : undefined,
       });
     }
 
@@ -285,10 +285,10 @@ export default function Card({
     setDraftLocation("");
     setDraftFrequency("");
     setDraftOffset("");
-    setDraftToneUp("");
-    setDraftToneDown("");
+    setDraftTone("");
+    setDraftRxTone("");
 
-  }, [draftCardType, draftCallsign, draftName, draftWebsite, draftStar, draftLocation, draftFrequency, draftOffset, draftToneUp, draftToneDown, onEdit]);
+  }, [draftCardType, draftCallsign, draftName, draftWebsite, draftStar, draftLocation, draftFrequency, draftOffset, draftTone, draftRxTone, onEdit]);
 
   const displayCallsign = editMode ? draftCallsign : contact.callsign;
   const displayName = editMode ? draftName : contact.name;
@@ -296,8 +296,8 @@ export default function Card({
   
   const displayFreq     = editMode ? draftFrequency : (!Number.isNaN(contact.frequency) && contact.frequency !== undefined) ? contact.frequency.toFixed(FREQ_TRAILING).toString() + " MHz" : "";
   const displayOffset   = editMode ? draftOffset    : (!Number.isNaN(contact.offset)    && contact.offset    !== undefined) ? (Math.sign(contact.offset) == -1 ? "-" : "+") + contact.offset.toFixed(2).toString() + " MHz" : "";
-  const displayToneUp   = editMode ? draftToneUp    : (!Number.isNaN(contact.toneUp)    && contact.toneUp    !== undefined) ? contact.toneUp.toFixed(TONE_TRAILING).toString()   + " Hz" : "";
-  const displayToneDown = editMode ? draftToneDown  : (!Number.isNaN(contact.toneDown)  && contact.toneDown  !== undefined) ? contact.toneDown.toFixed(TONE_TRAILING).toString() + " Hz" : "";
+  const displayToneUp   = editMode ? draftTone      : (!Number.isNaN(contact.tone)    && contact.tone    !== undefined) ? contact.tone.toFixed(TONE_TRAILING).toString()   + " Hz" : "";
+  const displayToneDown = editMode ? draftRxTone    : (!Number.isNaN(contact.rxtone)  && contact.rxtone  !== undefined) ? contact.rxtone.toFixed(TONE_TRAILING).toString() + " Hz" : "";
 
   const firstInput = useRef<HTMLInputElement>(null);
 
@@ -488,28 +488,28 @@ export default function Card({
                   disabled={!editMode}
                 />
               ) : null}
-              {editMode || contact.toneUp ? (
+              {editMode || contact.tone ? (
                 <div className="flex items-center">
-                  { contact.toneDown || editMode ? (
+                  { contact.rxtone || editMode ? (
                     <FontAwesomeIcon icon={faArrowUp} className="text-sm px-1" /> 
                   ) : null}
                   <Input
                     className=""
                     value={displayToneUp}
-                    onChange={(e) => {setDraftToneUp(e.target.value)}}
+                    onChange={(e) => {setDraftTone(e.target.value)}}
                     onKeyDown={handleInputKeyDown}
                     placeholder="tone (up)"
                     disabled={!editMode}
                   />
                 </div>
               ) : null}
-              {editMode || contact.toneDown ? (
+              {editMode || contact.rxtone ? (
                 <div className="flex items-center">
                   <FontAwesomeIcon icon={faArrowDown} className="text-sm px-1" />
                   <Input
                     className=""
                     value={displayToneDown}
-                    onChange={(e) => {setDraftToneDown(e.target.value)}}
+                    onChange={(e) => {setDraftRxTone(e.target.value)}}
                     onKeyDown={handleInputKeyDown}
                     placeholder="tone down"
                     disabled={!editMode}

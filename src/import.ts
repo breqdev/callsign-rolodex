@@ -1,5 +1,6 @@
 import JSZip from "jszip";
 import { Contact } from "./contact";
+import { parse } from "@fortawesome/fontawesome-svg-core";
 
 export async function importVCard(file: File): Promise<Contact> {
   const text = await file.text();
@@ -26,6 +27,19 @@ export async function importVCard(file: File): Promise<Contact> {
         break;
       case "X-CALLSIGN":
         contact.callsign = value;
+        break;
+      case "X-STATION-TYPE":
+        contact.cardType = value == "repeater" ? "repeater" : "person";
+        break;
+      case "X-LOCATION":
+        contact.location = value;
+        break;
+      case "X-REPEATER-INFO":
+        const [frequency, offset, tone, rxtone] = value.split(";");
+        contact.frequency = frequency != "" ? parseFloat(frequency) : undefined;
+        contact.offset = offset != "" ? parseFloat(offset) : undefined;
+        contact.tone = tone != "" ? parseFloat(tone) : undefined;
+        contact.rxtone = rxtone != "" ? parseFloat(rxtone) : undefined;
         break;
     }
   }
