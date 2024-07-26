@@ -260,7 +260,9 @@ export default function Rolodex() {
                   c.location.toLocaleLowerCase().includes(q) || 
                   c.cardType.toLocaleLowerCase().includes(q)
                 );
+              
               }
+
               return true;
             })
             .map((card, i, arr) => {
@@ -272,9 +274,9 @@ export default function Rolodex() {
               }
               return { card, tag: undefined };
             })
-            .map(({ card, tag }) => (
+            .map(({ card, tag }, index) => (
               <Card
-                key={card.callsign}
+                key={card.callsign + index}
                 contact={card}
                 onEdit={makeEditHandler(card)}
                 onDelete={makeDeleteHandler(card)}
