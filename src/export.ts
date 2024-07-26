@@ -30,7 +30,7 @@ export async function generateVCard(c: Contact) {
   // this is hopefully not that wrong
   if (c.cardType == "repeater") {
     
-    // using `X-LOCATION` instead of `ADR` or `GEO` since the inputted location could be something like "UI Steam Plant, Moscow, ID"
+    // using `X-LOCATION` instead of `ADR` or `GEO` since the inputted location could be something like "UI Steam Plant, Moscow, ID" - which isn't a mailing address, and GEO wants lat/long
     vcf += `X-LOCATION:${c.location}\n`;
 
     vcf += `X-REPEATER-INFO:`
