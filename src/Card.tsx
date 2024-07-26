@@ -188,6 +188,15 @@ export default function Card({
     fetcher
   );
 
+  if (contact.cardType === undefined) {
+    contact.cardType = "person";
+  }
+  if (contact.location === undefined) {
+    contact.location = "";
+  }
+  
+
+
   const [editMode, setEditMode] = useState(createMode);
   const [draftCardType, setDraftCardType] = useState("person");
   const [draftCallsign, setDraftCallsign] = useState("");
