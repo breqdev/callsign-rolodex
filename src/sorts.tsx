@@ -67,6 +67,10 @@ const SORTS: Sort[] = [
   {
     name: "Type",
     impl: (a, b) => a.cardType.localeCompare(b.cardType),
+  },
+  {
+    name: "Location",
+    impl: (a, b) => a.location && b.location ? a.location.localeCompare(b.location) : 0
   }
 ];
 
