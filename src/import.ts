@@ -1,6 +1,6 @@
 import JSZip from "jszip";
 import { Contact } from "./contact";
-import { parse } from "@fortawesome/fontawesome-svg-core";
+// import { parse } from "@fortawesome/fontawesome-svg-core";
 
 export async function importVCard(file: File): Promise<Contact> {
   const text = await file.text();
