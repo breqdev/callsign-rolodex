@@ -71,6 +71,10 @@ const SORTS: Sort[] = [
   {
     name: "Location",
     impl: (a, b) => a.location && b.location ? a.location.localeCompare(b.location) : 0
+  },
+  {
+    name: "Frequency",
+    impl: (a, b) => a.frequency && b.frequency ? a.frequency - b.frequency : a.frequency ? 1 : b.frequency ? -1 : 0
   }
 ];
 

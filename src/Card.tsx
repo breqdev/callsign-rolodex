@@ -304,7 +304,7 @@ export default function Card({
   const displayLocation = editMode ? draftLocation : contact.location;
   
   const displayFreq     = editMode ? draftFrequency : (!Number.isNaN(contact.frequency) && contact.frequency !== undefined) ? contact.frequency.toFixed(FREQ_TRAILING).toString() + " MHz" : "";
-  const displayOffset   = editMode ? draftOffset    : (!Number.isNaN(contact.offset)    && contact.offset    !== undefined) ? (Math.sign(contact.offset) == -1 ? "-" : "+") + contact.offset.toFixed(2).toString() + " MHz" : "";
+  const displayOffset   = editMode ? draftOffset    : (!Number.isNaN(contact.offset)    && contact.offset    !== undefined) ? (Math.sign(contact.offset) == 1 ? "+" : "") + contact.offset.toFixed(2).toString() + " MHz" : "";
   const displayToneUp   = editMode ? draftTone      : (!Number.isNaN(contact.tone)    && contact.tone    !== undefined) ? contact.tone.toFixed(TONE_TRAILING).toString()   + " Hz" : "";
   const displayToneDown = editMode ? draftRxTone    : (!Number.isNaN(contact.rxtone)  && contact.rxtone  !== undefined) ? contact.rxtone.toFixed(TONE_TRAILING).toString() + " Hz" : "";
 
