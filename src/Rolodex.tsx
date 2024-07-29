@@ -261,7 +261,6 @@ export default function Rolodex() {
                   c.location?.toLocaleLowerCase().includes(q) || 
                   c.cardType.toLocaleLowerCase().includes(q)
                 );
-              
               }
 
               return true;
@@ -274,6 +273,14 @@ export default function Rolodex() {
                 return { card, tag: tag(card, last) };
               }
               return { card, tag: undefined };
+            })
+            .filter((c) => {
+              const method = SORTS[sort];
+              if (method.filter !== undefined) {
+                return method.filter(c.card);
+              }
+
+              return true;
             })
             .map(({ card, tag }) => (
               <Card

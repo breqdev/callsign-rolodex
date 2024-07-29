@@ -408,7 +408,7 @@ export default function Card({
         }}
       >
         <div className="z-10">
-          <div className="flex items-start">
+          <div className="flex items-start gap-2">
             <div>
               <Input
                 className="font-mono text-7xl h-16"
@@ -435,28 +435,8 @@ export default function Card({
                   ))}
                 </p>
               )}
-              {(editMode && draftCardType == "person") || (!editMode && contact.cardType == "person") ? (
-                <Input
-                  className="text-3xl -my-1"
-                  value={displayName}
-                  onChange={(e) => setDraftName(e.target.value)}
-                  onKeyDown={handleInputKeyDown}
-                  placeholder="name"
-                  disabled={!editMode}
-                />
-              ) : null} 
-              {(editMode && draftCardType == "repeater") || (!editMode && contact.cardType == "repeater") ? (
-                <Input
-                  className="text-3xl -my1"
-                  value={displayLocation}
-                  onChange={(e) => setDraftLocation(e.target.value)}
-                  onKeyDown={handleInputKeyDown}
-                  placeholder="location"
-                  disabled={!editMode}
-                />     
-              ) : null}
             </div>
-            <div className="flex flex-col items-center w-28 gap-2">
+            <div className="flex flex-col items-center w-28 h-4 gap-2">
                 {(contact.star || editMode) && (
                   <button
                     className="text-3xl"
@@ -516,6 +496,28 @@ export default function Card({
                 )
               )}        
             </div>
+          </div>
+          <div className={editMode ? "w-64" : ""}>
+            {(editMode && draftCardType == "person") || (!editMode && contact.cardType == "person") ? (
+              <Input
+                className="text-3xl"
+                value={displayName}
+                onChange={(e) => setDraftName(e.target.value)}
+                onKeyDown={handleInputKeyDown}
+                placeholder="name"
+                disabled={!editMode}
+              />
+            ) : null} 
+            {(editMode && draftCardType == "repeater") || (!editMode && contact.cardType == "repeater") ? (
+              <Input
+                className="text-3xl"
+                value={displayLocation}
+                onChange={(e) => setDraftLocation(e.target.value)}
+                onKeyDown={handleInputKeyDown}
+                placeholder="location"
+                disabled={!editMode}
+              />     
+            ) : null}
           </div>
         </div>
         {(editMode && draftCardType == "repeater") || (!editMode && contact.cardType == "repeater") ? (
