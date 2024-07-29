@@ -142,6 +142,8 @@ export default function Rolodex() {
             const data = doc.data() as Contact;
             return {
               ...data,
+              cardType: data.cardType !== undefined ? data.cardType : "person",
+              location: data.location !== undefined ? data.location : "",
               id: doc.id,
             };
           })
@@ -255,9 +257,8 @@ export default function Rolodex() {
                 const q = query.toLocaleLowerCase();
                 return (
                   c.callsign.toLocaleLowerCase().includes(q) ||
-                  c.name.toLocaleLowerCase().includes(q) ||
-                  // this may cause issues with older cards that may have an undefined location...
-                  c.location.toLocaleLowerCase().includes(q) || 
+                  c.name?.toLocaleLowerCase().includes(q) ||
+                  c.location?.toLocaleLowerCase().includes(q) || 
                   c.cardType.toLocaleLowerCase().includes(q)
                 );
               
@@ -274,9 +275,9 @@ export default function Rolodex() {
               }
               return { card, tag: undefined };
             })
-            .map(({ card, tag }, index) => (
+            .map(({ card, tag }) => (
               <Card
-                key={card.callsign + index}
+                key={card.id}
                 contact={card}
                 onEdit={makeEditHandler(card)}
                 onDelete={makeDeleteHandler(card)}

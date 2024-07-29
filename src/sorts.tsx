@@ -39,7 +39,19 @@ const SORTS: Sort[] = [
   },
   {
     name: "Last Name",
-    impl: (a, b) => lastNameFirst(a.name).localeCompare(lastNameFirst(b.name)),
+    impl: (a, b) => {
+      if (a.cardType == b.cardType && a.cardType == "person") {
+        return lastNameFirst(a.name).localeCompare(lastNameFirst(b.name));
+      } 
+      else if (a.cardType == b.cardType) {
+        // sort by location
+        return SORTS[5].impl(a, b)
+      }
+      else {
+        // person first
+        return a.cardType.localeCompare(b.cardType);
+      }
+    },
     tag: (current, last) => {
       if (
         !last ||
@@ -52,7 +64,18 @@ const SORTS: Sort[] = [
   },
   {
     name: "First Name",
-    impl: (a, b) => a.name.localeCompare(b.name),
+    impl: (a, b) => {
+      if (a.cardType == b.cardType && a.cardType == "person") {
+        return a.name.localeCompare(b.name);
+      }
+      else if (a.cardType == b.cardType) {
+        // sort by location
+        return SORTS[5].impl(a, b)
+      }
+      else {
+        return a.cardType.localeCompare(b.cardType);
+      }
+    },
     tag: (current, last) => {
       if (!last || current.name[0] != last.name[0]) {
         return current.name[0];
@@ -66,15 +89,41 @@ const SORTS: Sort[] = [
   },
   {
     name: "Type",
-    impl: (a, b) => a.cardType.localeCompare(b.cardType),
+    impl: (a, b) => {
+      if (a.cardType == b.cardType) {
+        // sort by callsign 
+        return SORTS[3].impl(a, b);
+      }
+      else {
+        return a.cardType.localeCompare(b.cardType);
+      }
+    }
   },
   {
     name: "Location",
-    impl: (a, b) => a.location && b.location ? a.location.localeCompare(b.location) : a.location ? -1 : b.location ? 1 : 0
+    impl: (a, b) => {
+      if (a.cardType == b.cardType && a.cardType == "repeater") {
+        return a.location?.localeCompare(b.location);
+      }
+      else if (a.cardType == b.cardType) {
+        // sort by last name
+        return SORTS[1].impl(a, b)
+      }
+      else {
+        return b.cardType.localeCompare(a.cardType);
+      }
+    }
   },
   {
     name: "Frequency",
-    impl: (a, b) => a.frequency && b.frequency ? a.frequency - b.frequency : a.frequency ? -1 : b.frequency ? 1 : 0
+    impl: (a, b) => {
+      if (a.cardType == b.cardType && a.cardType == "repeater" && a.frequency !== undefined && b.frequency !== undefined) {
+        return (a.frequency - b.frequency)
+      }
+      else {
+        return b.cardType.localeCompare(a.cardType);
+      }
+    }
   }
 ];
 

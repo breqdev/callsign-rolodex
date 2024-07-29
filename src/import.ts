@@ -28,18 +28,28 @@ export async function importVCard(file: File): Promise<Contact> {
       case "X-CALLSIGN":
         contact.callsign = value;
         break;
-      case "X-STATION-TYPE":
+      case "X-CARD-TYPE":
+        if (value != "repeater" && value != "person") {
+          console.error(`unknown card type '${value}`);
+        }
         contact.cardType = value == "repeater" ? "repeater" : "person";
         break;
-      case "X-LOCATION":
+      case "ADR":
         contact.location = value;
         break;
       case "X-REPEATER-INFO":
-        const [frequency, offset, tone, rxtone] = value.split(";");
+        const [frequency, offset, txToneMode, txTone, rxToneMode, rxTone] = value.split(";");
+        
         contact.frequency = frequency != "" ? parseFloat(frequency) : undefined;
         contact.offset = offset != "" ? parseFloat(offset) : undefined;
-        contact.tone = tone != "" ? parseFloat(tone) : undefined;
-        contact.rxtone = rxtone != "" ? parseFloat(rxtone) : undefined;
+        contact.txTone = txTone != "" ? parseFloat(txTone) : undefined;
+        contact.rxTone = rxTone != "" ? parseFloat(rxTone) : undefined;
+        contact.txToneMode = txToneMode != "" 
+          ? txToneMode == "DCS" ? "DCS" : "CTCSS"
+          : undefined;
+        contact.rxToneMode = rxToneMode != "" 
+          ? rxToneMode == "DCS" ? "DCS" : "CTCSS"
+          : undefined;
         break;
     }
   }

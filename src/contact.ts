@@ -7,6 +7,8 @@ export interface Contact {
   website?: string;
   frequency?: number;
   offset?: number;
-  tone?: number;   
-  rxtone?: number;
+  txTone?: number;   
+  rxTone?: number;
+  txToneMode?: "DCS" | "CTCSS"; 
+  rxToneMode?: "DCS" | "CTCSS"; 
 }

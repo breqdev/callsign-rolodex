@@ -26,6 +26,7 @@ import {
 import { generateJson, generateVCard } from "./export";
 import { SettingsContext } from "./Settings";
 import THEMES from "./themes";
+// import { height } from "@fortawesome/free-brands-svg-icons/fa42Group";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -162,6 +163,26 @@ const Input = forwardRef<
   }
 );
 
+function parseTone(value: string): {
+  value: number,
+  type: "CTCSS" | "DCS" 
+} {
+  return {
+    type: value.toLocaleUpperCase().includes("D") ? "DCS" : "CTCSS",
+    value: parseFloat(value.toLocaleUpperCase().replace("D", ""))
+  }
+}
+
+function formatTone( value: number | undefined, type: "CTCSS" | "DCS" | undefined ): string {
+  if (value === undefined || type === undefined) {
+    return ""
+  }
+  
+  return !isNaN(value) 
+    ? (type == "DCS" ? "D" : "") + value.toFixed(type == "DCS" ? 0 : TONE_TRAILING).toString() 
+    : ""
+}
+
 export default function Card({
   contact,
   onEdit,
@@ -188,17 +209,14 @@ export default function Card({
     fetcher
   );
 
+
+  // this is supposed to deal with any incompatibilities
   if (contact.cardType === undefined) {
     contact.cardType = "person";
   }
-  if (contact.location === undefined) {
-    contact.location = "";
-  }
-  
-
 
   const [editMode, setEditMode] = useState(createMode);
-  const [draftCardType, setDraftCardType] = useState("person");
+  const [draftCardType, setDraftCardType] = useState<"person" | "repeater">("person");
   const [draftCallsign, setDraftCallsign] = useState("");
   const [draftName, setDraftName] = useState("");
   const [draftLocation, setDraftLocation] = useState("");
@@ -206,8 +224,9 @@ export default function Card({
   const [draftStar, setDraftStar] = useState(false);
   const [draftFrequency, setDraftFrequency] = useState("");
   const [draftOffset, setDraftOffset] = useState("");
-  const [draftTone, setDraftTone] = useState("");
+
   const [draftRxTone, setDraftRxTone] = useState("");
+  const [draftTxTone, setDraftTxTone] = useState("");
 
   const enterEditMode = useCallback(() => {
     setEditMode(true);
@@ -218,8 +237,8 @@ export default function Card({
     setDraftWebsite(contact?.website || "");
     setDraftFrequency(contact?.frequency?.toString() || "");
     setDraftOffset(contact?.offset?.toString() || "");
-    setDraftTone(contact.tone?.toString() || "");
-    setDraftRxTone(contact.rxtone?.toString() || "");
+    setDraftRxTone(formatTone(contact?.rxTone, contact?.rxToneMode))
+    setDraftTxTone(formatTone(contact?.txTone, contact?.txToneMode))
     setDraftStar(contact?.star || false);
   }, [contact]);
 
@@ -245,6 +264,9 @@ export default function Card({
       });
     }
     else {
+      const rxTone = parseTone(draftRxTone);
+      const txTone = parseTone(draftTxTone);
+
       onEdit({
         cardType: "repeater",
         star: draftStar,
@@ -254,12 +276,14 @@ export default function Card({
         website,
         frequency: draftFrequency != "" ? parseFloat(draftFrequency) : undefined,
         offset: draftOffset != "" ? parseFloat(draftOffset) : undefined,
-        tone: draftTone != "" ? parseFloat(draftTone) : undefined,
-        rxtone: draftRxTone != "" ? parseFloat(draftRxTone) : undefined,
+        rxTone: rxTone.value,
+        txTone: txTone.value,
+        rxToneMode: rxTone.type,
+        txToneMode: txTone.type
       });
     }
 
-  }, [draftCardType, draftCallsign, draftName, draftWebsite, draftStar, draftLocation, draftFrequency, draftOffset, draftTone, draftRxTone, onEdit]);
+  }, [draftCardType, draftCallsign, draftName, draftWebsite, draftStar, draftLocation, draftFrequency, draftOffset, draftRxTone, draftTxTone, onEdit]);
 
   const handleCreate = useCallback(() => {
     if (draftCardType == "person") {
@@ -273,6 +297,9 @@ export default function Card({
       });
     }
     else {
+      const rxTone = parseTone(draftRxTone);
+      const txTone = parseTone(draftTxTone);
+
       onEdit({
         cardType: "repeater",
         star: draftStar,
@@ -282,8 +309,10 @@ export default function Card({
         website: draftWebsite || undefined,
         frequency: draftFrequency != "" ? parseFloat(draftFrequency) : undefined,
         offset: draftOffset != "" ? parseFloat(draftOffset) : undefined,
-        tone: draftTone != "" ? parseFloat(draftTone) : undefined,
-        rxtone: draftRxTone != "" ? parseFloat(draftRxTone) : undefined,
+        rxTone: rxTone.value,
+        txTone: txTone.value,
+        rxToneMode: rxTone.type,
+        txToneMode: txTone.type
       });
     }
 
@@ -294,19 +323,35 @@ export default function Card({
     setDraftLocation("");
     setDraftFrequency("");
     setDraftOffset("");
-    setDraftTone("");
-    setDraftRxTone("");
 
-  }, [draftCardType, draftCallsign, draftName, draftWebsite, draftStar, draftLocation, draftFrequency, draftOffset, draftTone, draftRxTone, onEdit]);
+    setDraftRxTone("");
+    setDraftTxTone("");
+
+  }, [draftCardType, draftCallsign, draftName, draftWebsite, draftStar, draftLocation, draftFrequency, draftOffset, draftRxTone, draftTxTone, onEdit]);
 
   const displayCallsign = editMode ? draftCallsign : contact.callsign;
-  const displayName = editMode ? draftName : contact.name;
-  const displayLocation = editMode ? draftLocation : contact.location;
-  
-  const displayFreq     = editMode ? draftFrequency : (!Number.isNaN(contact.frequency) && contact.frequency !== undefined) ? contact.frequency.toFixed(FREQ_TRAILING).toString() + " MHz" : "";
-  const displayOffset   = editMode ? draftOffset    : (!Number.isNaN(contact.offset)    && contact.offset    !== undefined) ? (Math.sign(contact.offset) == 1 ? "+" : "") + contact.offset.toFixed(2).toString() + " MHz" : "";
-  const displayToneUp   = editMode ? draftTone      : (!Number.isNaN(contact.tone)    && contact.tone    !== undefined) ? contact.tone.toFixed(TONE_TRAILING).toString()   + " Hz" : "";
-  const displayToneDown = editMode ? draftRxTone    : (!Number.isNaN(contact.rxtone)  && contact.rxtone  !== undefined) ? contact.rxtone.toFixed(TONE_TRAILING).toString() + " Hz" : "";
+  const displayName = editMode ? draftName : contact.name !== undefined ? contact.name : "";
+  const displayLocation = editMode ? draftLocation : contact.location !== undefined ? contact.location : "";
+
+  const displayFreq = editMode
+    ? draftFrequency
+    : !Number.isNaN(contact.frequency) && contact.frequency !== undefined
+    ? contact.frequency.toFixed(FREQ_TRAILING).toString() + " MHz"
+    : "";
+  const displayOffset = editMode
+    ? draftOffset
+    : !Number.isNaN(contact.offset) && contact.offset !== undefined
+    ? (Math.sign(contact.offset) == 1 ? "+" : "") +
+      contact.offset.toFixed(2).toString() +
+      " MHz"
+    : "";
+
+  const displayRxTone = editMode 
+    ? draftRxTone
+    : formatTone(contact.rxTone, contact.rxToneMode) + (contact.rxToneMode !== undefined && contact.rxToneMode == "CTCSS" ? " Hz" : "");
+  const displayTxTone = editMode 
+    ? draftTxTone
+    : formatTone(contact.txTone, contact.txToneMode) + (contact.txToneMode !== undefined && contact.txToneMode == "CTCSS" ? " Hz" : "");
 
   const firstInput = useRef<HTMLInputElement>(null);
 
@@ -363,10 +408,10 @@ export default function Card({
         }}
       >
         <div className="z-10">
-          <div className="flex">
+          <div className="flex items-start">
             <div>
               <Input
-                className="font-mono text-7xl"
+                className="font-mono text-7xl h-16"
                 value={displayCallsign}
                 onChange={(e) =>
                   setDraftCallsign(e.target.value.toLocaleUpperCase())
@@ -390,6 +435,26 @@ export default function Card({
                   ))}
                 </p>
               )}
+              {(editMode && draftCardType == "person") || (!editMode && contact.cardType == "person") ? (
+                <Input
+                  className="text-3xl -my-1"
+                  value={displayName}
+                  onChange={(e) => setDraftName(e.target.value)}
+                  onKeyDown={handleInputKeyDown}
+                  placeholder="name"
+                  disabled={!editMode}
+                />
+              ) : null} 
+              {(editMode && draftCardType == "repeater") || (!editMode && contact.cardType == "repeater") ? (
+                <Input
+                  className="text-3xl -my1"
+                  value={displayLocation}
+                  onChange={(e) => setDraftLocation(e.target.value)}
+                  onKeyDown={handleInputKeyDown}
+                  placeholder="location"
+                  disabled={!editMode}
+                />     
+              ) : null}
             </div>
             <div className="flex flex-col items-center w-28 gap-2">
                 {(contact.star || editMode) && (
@@ -452,31 +517,10 @@ export default function Card({
               )}        
             </div>
           </div>
-          {(editMode && draftCardType == "person") || (!editMode && contact.cardType == "person") ? (
-            <Input
-              className="text-3xl -my-1"
-              value={displayName}
-              onChange={(e) => setDraftName(e.target.value)}
-              onKeyDown={handleInputKeyDown}
-              placeholder="name"
-              disabled={!editMode}
-            />
-          ) : null} 
-          {(editMode && draftCardType == "repeater") || (!editMode && contact.cardType == "repeater") ? (
-            <Input
-              className="text-3xl -my1"
-              value={displayLocation}
-              onChange={(e) => setDraftLocation(e.target.value)}
-              onKeyDown={handleInputKeyDown}
-              placeholder="location"
-              disabled={!editMode}
-            />     
-          ) : null}
-
         </div>
         {(editMode && draftCardType == "repeater") || (!editMode && contact.cardType == "repeater") ? (
           <div className="z-10 text-sm w-52">
-            <div className="grid grid-cols-2 gap-0">
+            <div className="grid grid-cols-2 gap-2">
               {editMode || contact.frequency ? (
                 <Input
                   className=""
@@ -497,30 +541,30 @@ export default function Card({
                   disabled={!editMode}
                 />
               ) : null}
-              {editMode || contact.tone ? (
+              {editMode || contact.txTone ? (
                 <div className="flex items-center">
-                  { contact.rxtone || editMode ? (
+                  { contact.txTone || editMode ? (
                     <FontAwesomeIcon icon={faArrowUp} className="text-sm px-1" /> 
                   ) : null}
                   <Input
                     className=""
-                    value={displayToneUp}
-                    onChange={(e) => {setDraftTone(e.target.value)}}
+                    value={displayTxTone}
+                    onChange={(e) => {setDraftTxTone(e.target.value)}}
                     onKeyDown={handleInputKeyDown}
-                    placeholder="tone (up)"
+                    placeholder=""
                     disabled={!editMode}
                   />
                 </div>
               ) : null}
-              {editMode || contact.rxtone ? (
+              {editMode || contact.rxTone ? (
                 <div className="flex items-center">
                   <FontAwesomeIcon icon={faArrowDown} className="text-sm px-1" />
                   <Input
                     className=""
-                    value={displayToneDown}
+                    value={displayRxTone}
                     onChange={(e) => {setDraftRxTone(e.target.value)}}
                     onKeyDown={handleInputKeyDown}
-                    placeholder="tone down"
+                    placeholder=""
                     disabled={!editMode}
                   />
                 </div>
