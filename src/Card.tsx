@@ -209,12 +209,6 @@ export default function Card({
     fetcher
   );
 
-
-  // this is supposed to deal with any incompatibilities
-  if (contact.cardType === undefined) {
-    contact.cardType = "person";
-  }
-
   const [editMode, setEditMode] = useState(createMode);
   const [draftCardType, setDraftCardType] = useState<"person" | "repeater">("person");
   const [draftCallsign, setDraftCallsign] = useState("");

@@ -35,16 +35,14 @@ const SORTS: Sort[] = [
       if (a.star == b.star) {
         return sort("Last Name").impl(a, b)
       }
-      
       return (b.star === true ? 1 : 0) - (a.star === true ? 1 : 0)
     },
     tag: (current, last) => {
       if (!last) {
         return <FontAwesomeIcon icon={faStar} />;
       }
-      
       if (!current.star) {
-        const a = sort("Last Name")
+        const a = sort("Callsign")
         if (a.tag !== undefined) {
           return a.tag(current, last);
         }
@@ -54,71 +52,44 @@ const SORTS: Sort[] = [
   },
   {
     name: "Last Name",
-    impl: (a, b) => {
-      return lastNameFirst(a.name).localeCompare(lastNameFirst(b.name));
-    },
-    tag: (current, last) => {
-      return (!last || lastNameFirst(current.name)[0] != lastNameFirst(last.name)[0]) ? lastNameFirst(current.name)[0] : undefined; 
-    },
-    filter: (c) => {
-      return c.cardType == "person"
-    }
+    impl: (a, b) => lastNameFirst(a.name).localeCompare(lastNameFirst(b.name)),
+    tag: (current, last) => (!last || lastNameFirst(current.name)[0] != lastNameFirst(last.name)[0]) ? lastNameFirst(current.name)[0] : undefined,
+    filter: (c) => c.cardType == "person"
   },
   {
     name: "First Name",
-    impl: (a, b) => {
-      return a.name.localeCompare(b.name);
-    },
-    tag: (current, last) => {
-      return (!last || current.name[0] != last.name[0]) ? current.name[0] : undefined; 
-    },
-    filter: (c) => {
-      return c.cardType == "person"
-    }
+    impl: (a, b) => a.name.localeCompare(b.name),
+    tag: (current, last) => (!last || current.name[0] != last.name[0]) ? current.name[0] : undefined,
+    filter: (c) => c.cardType == "person",
   },
   {
     name: "Location",
-    impl: (a, b) => {
-      return a.location.localeCompare(b.location);
-    }, 
-    tag: (current, last) => {
-      return (!last || current.location[0] != last.location[0]) ? current.location[0] : undefined;
-    },
-    filter: (c) => {
-      return c.cardType == "repeater"
-    }
+    impl: (a, b) => a.location.localeCompare(b.location),
+    tag: (current, last) => (!last || current.location[0] != last.location[0]) ? current.location[0] : undefined,
+    filter: (c) => c.cardType == "repeater"
   },
   {
     name: "Callsign",
-    impl: (a, b) => {
-      return a.callsign.localeCompare(b.callsign);
-    }, 
-    tag: (current, last) => {
-      return (!last || current.callsign[0] != last.callsign[0]) ? current.callsign[0] : undefined;
-    },
+    impl: (a, b) => a.callsign.localeCompare(b.callsign), 
+    tag: (current, last) => (!last || current.callsign[0] != last.callsign[0]) ? current.callsign[0] : undefined,
   },
   {
     name: "Type",
-    impl: (a, b) => {
-      // the sort("Callsign") here is tbd and is mainly a placeholder
-      return (a.cardType == b.cardType) ? sort("Callsign").impl(a, b) : a.cardType.localeCompare(b.cardType)
-    }, 
+    impl: (a, b) => (a.cardType == b.cardType) ? sort("Callsign").impl(a, b) : a.cardType.localeCompare(b.cardType), 
     tag: (current, last) => {
       const getIcon = (card: Contact) => {
         return card.cardType == "person" 
           ? <FontAwesomeIcon icon={faPerson}/> 
           : <FontAwesomeIcon icon={faTowerBroadcast}/>
       }
-
       return (!last || current.cardType != last.cardType) ? getIcon(current) : undefined;
     },
   },
   {
     name: "Frequency",
-    impl: (a, b) => {
-      return (a.frequency ? a.frequency : 0) - (b.frequency ? b.frequency : 0);
-    }, 
+    impl: (a, b) => (a.frequency ? a.frequency : 0) - (b.frequency ? b.frequency : 0), 
     tag: (current, last) => {
+      // based on https://www.arrl.org/files/file/Regulatory/Band%20Chart/Band%20Chart%20-%2011X17%20Color.pdf
       const getBand = (card: Contact): any => {
         if (card.frequency === undefined) {
           return undefined;
@@ -138,17 +109,13 @@ const SORTS: Sort[] = [
         if (28 <= card.frequency && card.frequency <= 29.7) {
           return "10 m"
         }
-      }
-      
+      }  
       if (!last || getBand(current) != getBand(last)) {
         return getBand(current); 
       }
-
       return undefined;
     },
-    filter: (c) => {
-      return c.cardType == "repeater"
-    }
+    filter: (c) => c.cardType == "repeater"
   }
 ];
 

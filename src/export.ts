@@ -20,7 +20,6 @@ export async function generateVCard(c: Contact) {
   // this is hopefully not that wrong
   if (c.cardType == "repeater") {
     vcf += `FN:${c.callsign}\n`;
-
     vcf += `ADR:${c.location}\n`;
 
     // format: "X-REPEATER-INFO:(freq);(offset);(txToneMode);(txTone);(rxToneMode);(rxTone);"
@@ -60,7 +59,6 @@ export async function generateVCard(c: Contact) {
     const family_name = names[names.length - 1];
     const given_name = names[0];
     const middle_names = names.slice(1, names.length - 1).join(" ");
-
 
     vcf += `N:${family_name};${given_name};${middle_names};;\n`;
 

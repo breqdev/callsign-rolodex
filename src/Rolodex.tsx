@@ -206,7 +206,7 @@ export default function Rolodex() {
   const [query, setQuery] = useState("");
 
   const [expanded, setExpanded] = useState(false);
-
+  
   return (
     <div className="flex flex-col h-full p-4 items-stretch bg-white text-black dark:bg-black dark:text-white">
       <div className="mt-4 flex flex-col max-w-3xl mx-auto p-4 rounded-2xl bg-gray-200 dark:bg-gray-600 font-display gap-2 w-full">
@@ -220,7 +220,6 @@ export default function Rolodex() {
             >
               logout
             </button>
-
             <button className="md:hidden text-xl">
               <FontAwesomeIcon
                 icon={faCog}
@@ -229,14 +228,12 @@ export default function Rolodex() {
             </button>
           </div>
         </div>
-
         <SettingsComponent
           cards={cards}
           createCard={createCard}
           expanded={expanded}
         />
       </div>
-
       {view !== "column" && (
         <div className="max-w-xl w-full mx-auto py-8 px-4">
           <input
@@ -247,7 +244,6 @@ export default function Rolodex() {
           />
         </div>
       )}
-
       {cards !== null ? (
         <ViewComponent>
           {cards
@@ -262,12 +258,10 @@ export default function Rolodex() {
                   c.cardType.toLocaleLowerCase().includes(q)
                 );
               }
-
               return true;
             })
             .map((card, i, arr) => {
               const last = i > 0 ? arr[i - 1] : null;
-
               const tag = SORTS[sort].tag;
               if (tag && view === "column") {
                 return { card, tag: tag(card, last) };
@@ -279,7 +273,6 @@ export default function Rolodex() {
               if (method.filter !== undefined) {
                 return method.filter(c.card);
               }
-
               return true;
             })
             .map(({ card, tag }) => (
