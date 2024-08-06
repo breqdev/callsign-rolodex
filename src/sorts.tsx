@@ -76,24 +76,27 @@ const SORTS: Record<string, Sort> = {
     impl: (a, b) => (a.frequency ? a.frequency : 0) - (b.frequency ? b.frequency : 0), 
     tag: (current, last) => {
       // based on https://www.arrl.org/files/file/Regulatory/Band%20Chart/Band%20Chart%20-%2011X17%20Color.pdf
+
       const getBand = (card: Contact): any => {
+        const US_BAND: Record<string, [number, number]> = {
+          "23 cm": [1240, 1300],
+          "33 cm": [902, 928],
+          "70 cm": [420, 450],
+          "1.25 m": [222, 225],
+          "2 m": [144, 148],
+          "6 m": [50, 54],
+          "10 m": [28, 29.7],
+          "20 m": [14, 14.35],        
+        }
+        
         if (card.frequency === undefined) {
           return undefined;
         }
-        if (420 <= card.frequency && card.frequency <= 450) {
-          return "70 cm"
-        }
-        if (222 <= card.frequency && card.frequency <= 225) {
-          return "1.25 m"
-        }
-        if (144 <= card.frequency && card.frequency <= 148) {
-          return "2 m"
-        }
-        if (50 <= card.frequency && card.frequency <= 54) {
-          return "6 m"
-        }
-        if (28 <= card.frequency && card.frequency <= 29.7) {
-          return "10 m"
+
+        for (const key in US_BAND) {
+          if (US_BAND[key][0] <= card.frequency && card.frequency <= US_BAND[key][1]) {
+            return key;
+          }
         }
       }  
       if (!last || getBand(current) != getBand(last)) {

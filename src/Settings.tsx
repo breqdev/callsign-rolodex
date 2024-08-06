@@ -103,8 +103,6 @@ function Dropdown<T extends string>({
     options: options.filter(b => b.group == a)
   }));
 
-  console.log(groups)
-
   return (
     <div className="flex flex-row md:flex-col justify-between items-center gap-1">
       <span>{label}</span>
