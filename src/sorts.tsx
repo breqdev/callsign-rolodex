@@ -13,6 +13,7 @@ type Sort = {
   impl: (a: Contact, b: Contact) => number;
   tag?: (current: Contact, last: Contact | null) => React.ReactNode | undefined;
   filter?: (a: Contact) => boolean;
+  group: "Individual" | "Repeater" | "All"; 
 };
 
 // O(n) basic lookup
@@ -24,7 +25,8 @@ function sort(name: string): Sort {
   }
   return {
     name: "",
-    impl: (_a, _b) => 0
+    impl: (_a, _b) => 0,
+    group: "All"
   }
 }
 
@@ -33,7 +35,7 @@ const SORTS: Sort[] = [
     name: "Starred",
     impl: (a, b) => {
       if (a.star == b.star) {
-        return sort("Last Name").impl(a, b)
+        return sort("Callsign").impl(a, b)
       }
       return (b.star === true ? 1 : 0) - (a.star === true ? 1 : 0)
     },
@@ -44,34 +46,39 @@ const SORTS: Sort[] = [
       if (!current.star) {
         const a = sort("Callsign")
         if (a.tag !== undefined) {
-          return a.tag(current, last);
+          return a.tag(current, last.star ? null : last);
         }
         return undefined;
       }
     },
+    group: "All"
   },
   {
     name: "Last Name",
     impl: (a, b) => lastNameFirst(a.name).localeCompare(lastNameFirst(b.name)),
     tag: (current, last) => (!last || lastNameFirst(current.name)[0] != lastNameFirst(last.name)[0]) ? lastNameFirst(current.name)[0] : undefined,
-    filter: (c) => c.cardType == "person"
+    filter: (c) => c.cardType == "person",
+    group: "Individual"
   },
   {
     name: "First Name",
     impl: (a, b) => a.name.localeCompare(b.name),
     tag: (current, last) => (!last || current.name[0] != last.name[0]) ? current.name[0] : undefined,
     filter: (c) => c.cardType == "person",
+    group: "Individual"
   },
   {
     name: "Location",
     impl: (a, b) => a.location.localeCompare(b.location),
     tag: (current, last) => (!last || current.location[0] != last.location[0]) ? current.location[0] : undefined,
-    filter: (c) => c.cardType == "repeater"
+    filter: (c) => c.cardType == "repeater",
+    group: "Repeater"
   },
   {
     name: "Callsign",
     impl: (a, b) => a.callsign.localeCompare(b.callsign), 
     tag: (current, last) => (!last || current.callsign[0] != last.callsign[0]) ? current.callsign[0] : undefined,
+    group: "All"
   },
   {
     name: "Type",
@@ -84,6 +91,7 @@ const SORTS: Sort[] = [
       }
       return (!last || current.cardType != last.cardType) ? getIcon(current) : undefined;
     },
+    group: "All"
   },
   {
     name: "Frequency",
@@ -115,7 +123,8 @@ const SORTS: Sort[] = [
       }
       return undefined;
     },
-    filter: (c) => c.cardType == "repeater"
+    filter: (c) => c.cardType == "repeater",
+    group: "Repeater"
   }
 ];
 
