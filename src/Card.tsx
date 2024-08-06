@@ -6,7 +6,7 @@ import {
   faStar as faStarSolid,
   faTrashAlt,
   faTowerBroadcast,
-  faPerson,
+  faUser,
   faArrowUp,
   faArrowDown
 } from "@fortawesome/free-solid-svg-icons";
@@ -466,7 +466,7 @@ export default function Card({
                     }}
                     onClick={() => setDraftCardType("person")}
                   >
-                    <FontAwesomeIcon icon={faPerson}/>
+                    <FontAwesomeIcon icon={faUser}/>
                   </button>
                   <button 
                     className="p-1 px-2 rounded-full transition-all"
@@ -484,7 +484,7 @@ export default function Card({
                 </div>
               ) : (
                 contact.cardType == "person" ? (
-                  <FontAwesomeIcon icon={faPerson} className="text-4xl"/>
+                  <FontAwesomeIcon icon={faUser} className="text-4xl"/>
                 ) : (
                   <FontAwesomeIcon icon={faTowerBroadcast} className="text-3xl"/>
                 )
