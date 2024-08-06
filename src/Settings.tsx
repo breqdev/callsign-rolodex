@@ -180,10 +180,10 @@ export function SettingsComponent({
 
         <Dropdown
           label="Sort by"
-          options={SORTS.map((s, i) => ({ 
-              name: s.name, 
+          options={Object.entries(SORTS).map((s, i) => ({ 
+              name: s[0], 
               value: i.toString(),
-              group: s.group
+              group: s[1].group
           }))}
           selected={sort.toString()}
           setSelected={(s) => setSort(parseInt(s))}

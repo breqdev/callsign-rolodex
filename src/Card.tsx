@@ -515,8 +515,8 @@ export default function Card({
           </div>
         </div>
         {(editMode && draftCardType == "repeater") || (!editMode && contact.cardType == "repeater") ? (
-          <div className="z-10 text-sm w-52">
-            <div className="grid grid-cols-2 gap-2">
+          <div className="z-10 text-md w-52 font-mono">
+            <div className="flex justify-between">
               {editMode || contact.frequency ? (
                 <Input
                   className=""
@@ -529,7 +529,7 @@ export default function Card({
               ) : null}
               {editMode || contact.offset ? (
                 <Input
-                  className=""
+                  className="w-[5.5rem]"
                   value={displayOffset}
                   onChange={(e) => {setDraftOffset(e.target.value)}}
                   onKeyDown={handleInputKeyDown}
@@ -537,6 +537,8 @@ export default function Card({
                   disabled={!editMode}
                 />
               ) : null}
+            </div>
+            <div className="grid grid-cols-2 justify-between">
               {editMode || contact.txTone ? (
                 <div className="flex items-center">
                   { contact.txTone || editMode ? (

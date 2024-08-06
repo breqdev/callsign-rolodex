@@ -9,33 +9,17 @@ function lastNameFirst(name: string) {
 }
 
 type Sort = {
-  name: string;
   impl: (a: Contact, b: Contact) => number;
   tag?: (current: Contact, last: Contact | null) => React.ReactNode | undefined;
   filter?: (a: Contact) => boolean;
   group: "Individual" | "Repeater" | "All"; 
 };
 
-// O(n) basic lookup
-function sort(name: string): Sort {
-  for (let i = 0; i < SORTS.length; i++) {
-    if (SORTS[i].name == name) {
-      return SORTS[i];
-    }
-  }
-  return {
-    name: "",
-    impl: (_a, _b) => 0,
-    group: "All"
-  }
-}
-
-const SORTS: Sort[] = [
-  {
-    name: "Starred",
+const SORTS: Record<string, Sort> = {
+  "Starred": {
     impl: (a, b) => {
       if (a.star == b.star) {
-        return sort("Callsign").impl(a, b)
+        return SORTS["Callsign"].impl(a, b);
       }
       return (b.star === true ? 1 : 0) - (a.star === true ? 1 : 0)
     },
@@ -44,7 +28,7 @@ const SORTS: Sort[] = [
         return <FontAwesomeIcon icon={faStar} />;
       }
       if (!current.star) {
-        const a = sort("Callsign")
+        const a = SORTS["Callsign"];
         if (a.tag !== undefined) {
           return a.tag(current, last.star ? null : last);
         }
@@ -53,36 +37,31 @@ const SORTS: Sort[] = [
     },
     group: "All"
   },
-  {
-    name: "Last Name",
+  "Last Name": {
     impl: (a, b) => lastNameFirst(a.name).localeCompare(lastNameFirst(b.name)),
     tag: (current, last) => (!last || lastNameFirst(current.name)[0] != lastNameFirst(last.name)[0]) ? lastNameFirst(current.name)[0] : undefined,
     filter: (c) => c.cardType == "person",
     group: "Individual"
   },
-  {
-    name: "First Name",
+  "First Name": {
     impl: (a, b) => a.name.localeCompare(b.name),
     tag: (current, last) => (!last || current.name[0] != last.name[0]) ? current.name[0] : undefined,
     filter: (c) => c.cardType == "person",
     group: "Individual"
   },
-  {
-    name: "Location",
+  "Location": {
     impl: (a, b) => a.location.localeCompare(b.location),
     tag: (current, last) => (!last || current.location[0] != last.location[0]) ? current.location[0] : undefined,
     filter: (c) => c.cardType == "repeater",
     group: "Repeater"
   },
-  {
-    name: "Callsign",
+  "Callsign": {
     impl: (a, b) => a.callsign.localeCompare(b.callsign), 
     tag: (current, last) => (!last || current.callsign[0] != last.callsign[0]) ? current.callsign[0] : undefined,
     group: "All"
   },
-  {
-    name: "Type",
-    impl: (a, b) => (a.cardType == b.cardType) ? sort("Callsign").impl(a, b) : a.cardType.localeCompare(b.cardType), 
+  "Type": {
+    impl: (a, b) => (a.cardType == b.cardType) ? SORTS["Callsign"].impl(a, b) : a.cardType.localeCompare(b.cardType), 
     tag: (current, last) => {
       const getIcon = (card: Contact) => {
         return card.cardType == "person" 
@@ -93,8 +72,7 @@ const SORTS: Sort[] = [
     },
     group: "All"
   },
-  {
-    name: "Frequency",
+  "Frequency": {
     impl: (a, b) => (a.frequency ? a.frequency : 0) - (b.frequency ? b.frequency : 0), 
     tag: (current, last) => {
       // based on https://www.arrl.org/files/file/Regulatory/Band%20Chart/Band%20Chart%20-%2011X17%20Color.pdf
@@ -126,6 +104,6 @@ const SORTS: Sort[] = [
     filter: (c) => c.cardType == "repeater",
     group: "Repeater"
   }
-];
+};
 
 export default SORTS;

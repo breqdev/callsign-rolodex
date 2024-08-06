@@ -206,7 +206,7 @@ export default function Rolodex() {
   const [query, setQuery] = useState("");
 
   const [expanded, setExpanded] = useState(false);
-  
+
   return (
     <div className="flex flex-col h-full p-4 items-stretch bg-white text-black dark:bg-black dark:text-white">
       <div className="mt-4 flex flex-col max-w-3xl mx-auto p-4 rounded-2xl bg-gray-200 dark:bg-gray-600 font-display gap-2 w-full">
@@ -247,7 +247,7 @@ export default function Rolodex() {
       {cards !== null ? (
         <ViewComponent>
           {cards
-            .sort(SORTS[sort].impl)
+            .sort(SORTS[Object.keys(SORTS)[sort]].impl)
             .filter((c) => {
               if (query) {
                 const q = query.toLocaleLowerCase();
@@ -262,14 +262,14 @@ export default function Rolodex() {
             })
             .map((card, i, arr) => {
               const last = i > 0 ? arr[i - 1] : null;
-              const tag = SORTS[sort].tag;
+              const tag = SORTS[Object.keys(SORTS)[sort]].tag;
               if (tag && view === "column") {
                 return { card, tag: tag(card, last) };
               }
               return { card, tag: undefined };
             })
             .filter((c) => {
-              const method = SORTS[sort];
+              const method = SORTS[Object.keys(SORTS)[sort]];
               if (method.filter !== undefined) {
                 return method.filter(c.card);
               }
