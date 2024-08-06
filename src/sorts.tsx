@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStar, faPerson, faTowerBroadcast } from "@fortawesome/free-solid-svg-icons";
+import { faStar, faUser, faTowerBroadcast } from "@fortawesome/free-solid-svg-icons";
 import { Contact } from "./contact";
 
 function lastNameFirst(name: string) {
@@ -79,7 +79,7 @@ const SORTS: Sort[] = [
     tag: (current, last) => {
       const getIcon = (card: Contact) => {
         return card.cardType == "person" 
-          ? <FontAwesomeIcon icon={faPerson}/> 
+          ? <FontAwesomeIcon icon={faUser}/> 
           : <FontAwesomeIcon icon={faTowerBroadcast}/>
       }
       return (!last || current.cardType != last.cardType) ? getIcon(current) : undefined;
