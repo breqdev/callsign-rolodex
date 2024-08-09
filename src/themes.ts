@@ -43,6 +43,18 @@ const THEMES = [
     tab: "#000000",
     tabLabel: "#fbcfe8",
   },
+  // my girlfriend asked for this
+  {
+    name: "teal",
+    label: "Teal",
+    dark: true,
+    color: "#ede9fe",
+    secondary: "#ede9fe",
+    background: "#43b0ba",
+    star: "#ede9fe",
+    tab: "#ede9fe",
+    tabLabel: "#000000",
+  },
   {
     name: "hacker",
     label: "Hacker",
