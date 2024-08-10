@@ -96,10 +96,15 @@ function Dropdown<T extends string>({
   setSelected,
 }: {
   label: string;
-  options: readonly { readonly name: string; readonly value: T }[];
+  options: readonly { readonly name: string; readonly value: T; group?: string }[];
   selected: T;
   setSelected: (value: T) => void;
 }) {
+  const groups = [... new Set(options.filter(a => a.group != null && a.group !== undefined).map(a => a.group))].map(a => ({
+    name: a,
+    options: options.filter(b => b.group == a)
+  }));
+
   return (
     <div className="flex flex-row md:flex-col justify-between items-center gap-1">
       <span>{label}</span>
@@ -108,11 +113,24 @@ function Dropdown<T extends string>({
         onChange={(e) => setSelected(e.target.value as T)}
         className="border-b-2 border-black dark:border-white text-xl py-1 bg-transparent"
       >
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.name}
-          </option>
-        ))}
+        { groups.length > 0 ? (
+            groups.map((group) => (
+              <optgroup label={group.name}>
+                {group.options.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.name}
+                  </option>
+                ))}
+              </optgroup>
+            ))
+        ) : (
+          options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.name}
+            </option>
+          ))
+        )}
+        
       </select>
     </div>
   );
@@ -163,7 +181,11 @@ export function SettingsComponent({
 
         <Dropdown
           label="Sort by"
-          options={SORTS.map((s, i) => ({ name: s.name, value: i.toString() }))}
+          options={Object.entries(SORTS).map((s, i) => ({ 
+              name: s[0], 
+              value: i.toString(),
+              group: s[1].group
+          }))}
           selected={sort.toString()}
           setSelected={(s) => setSort(parseInt(s))}
         />

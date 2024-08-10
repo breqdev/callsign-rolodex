@@ -142,6 +142,8 @@ export default function Rolodex() {
             const data = doc.data() as Contact;
             return {
               ...data,
+              cardType: data.cardType !== undefined ? data.cardType : "person",
+              location: data.location !== undefined ? data.location : "",
               id: doc.id,
             };
           })
@@ -238,7 +240,6 @@ export default function Rolodex() {
           />
         </div>
       </div>
-
       {view !== "column" && (
         <div className="max-w-xl w-full mx-auto py-8 px-4">
           <input
@@ -249,33 +250,40 @@ export default function Rolodex() {
           />
         </div>
       )}
-
       {cards !== null ? (
         <ViewComponent>
           {cards
-            .sort(SORTS[sort].impl)
+            .sort(SORTS[Object.keys(SORTS)[sort]].impl)
             .filter((c) => {
               if (query) {
                 const q = query.toLocaleLowerCase();
                 return (
                   c.callsign.toLocaleLowerCase().includes(q) ||
-                  c.name.toLocaleLowerCase().includes(q)
+                  c.name?.toLocaleLowerCase().includes(q) ||
+                  c.location?.toLocaleLowerCase().includes(q) ||
+                  c.cardType.toLocaleLowerCase().includes(q)
                 );
               }
               return true;
             })
             .map((card, i, arr) => {
               const last = i > 0 ? arr[i - 1] : null;
-
-              const tag = SORTS[sort].tag;
+              const tag = SORTS[Object.keys(SORTS)[sort]].tag;
               if (tag && view === "column") {
                 return { card, tag: tag(card, last) };
               }
               return { card, tag: undefined };
             })
+            .filter((c) => {
+              const method = SORTS[Object.keys(SORTS)[sort]];
+              if (method.filter !== undefined) {
+                return method.filter(c.card);
+              }
+              return true;
+            })
             .map(({ card, tag }) => (
               <Card
-                key={card.callsign}
+                key={card.id}
                 contact={card}
                 onEdit={makeEditHandler(card)}
                 onDelete={makeDeleteHandler(card)}
@@ -286,7 +294,12 @@ export default function Rolodex() {
             ))}
           <Card
             createMode
-            contact={{ name: "", callsign: "" }}
+            contact={{
+              name: "",
+              callsign: "",
+              cardType: "person",
+              location: "",
+            }}
             onEdit={createCard}
             onDelete={() => {}}
             referenceType={referenceType}

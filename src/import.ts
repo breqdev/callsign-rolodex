@@ -27,6 +27,29 @@ export async function importVCard(file: File): Promise<Contact> {
       case "X-CALLSIGN":
         contact.callsign = value;
         break;
+      case "X-CARD-TYPE":
+        if (value != "repeater" && value != "person") {
+          console.error(`unknown card type '${value}`);
+        }
+        contact.cardType = value == "repeater" ? "repeater" : "person";
+        break;
+      case "ADR":
+        contact.location = value;
+        break;
+      case "X-REPEATER-INFO":
+        const [frequency, offset, txToneMode, txTone, rxToneMode, rxTone] = value.split(";");
+        
+        contact.frequency = frequency != "" ? parseFloat(frequency) : undefined;
+        contact.offset = offset != "" ? parseFloat(offset) : undefined;
+        contact.txTone = txTone != "" ? parseFloat(txTone) : undefined;
+        contact.rxTone = rxTone != "" ? parseFloat(rxTone) : undefined;
+        contact.txToneMode = txToneMode != "" 
+          ? txToneMode == "DCS" ? "DCS" : "CTCSS"
+          : undefined;
+        contact.rxToneMode = rxToneMode != "" 
+          ? rxToneMode == "DCS" ? "DCS" : "CTCSS"
+          : undefined;
+        break;
     }
   }
 
