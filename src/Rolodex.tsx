@@ -94,7 +94,7 @@ function ColumnView({ children }: { children: Iterable<React.ReactNode> }) {
 
   return (
     <div
-      className="flex flex-col items-center gap-4 -mx-2 px-4 overflow-x-hidden w-full overflow-y-scroll h-0 flex-grow"
+      className="flex flex-col items-center gap-4 px-4 overflow-x-hidden w-full overflow-y-scroll h-0 flex-grow"
       style={{
         perspective: "1000px",
         perspectiveOrigin: "center",
@@ -206,35 +206,37 @@ export default function Rolodex() {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="flex flex-col h-full p-4 items-stretch bg-white text-black dark:bg-black dark:text-white">
-      <div className="mt-4 flex flex-col max-w-3xl mx-auto p-4 rounded-2xl bg-gray-200 dark:bg-gray-600 font-display gap-2 w-full">
-        <div className="flex flex-row w-full gap-3 justify-between">
-          <h1 className="font-mono text-4xl">rolodex</h1>
-          <div className="flex flex-row gap-2 items-center min-w-0">
-            <span className="text-ellipsis overflow-hidden min-w-0">
-              {user?.email}
-            </span>
-            <button
-              className="hidden md:block hover:underline focus-visible:underline text-gray-600 dark:text-gray-200"
-              onClick={() => signOut(auth)}
-            >
-              logout
-            </button>
+    <div className="flex flex-col h-full py-4 items-stretch bg-white text-black dark:bg-black dark:text-white">
+      <div className="p-4">
+        <div className="flex flex-col max-w-3xl mx-auto p-4 rounded-2xl bg-gray-200 dark:bg-gray-600 font-display gap-2 w-full">
+          <div className="flex flex-row w-full gap-3 justify-between">
+            <h1 className="font-mono text-4xl">rolodex</h1>
+            <div className="flex flex-row gap-2 items-center min-w-0">
+              <span className="text-ellipsis overflow-hidden min-w-0">
+                {user?.email}
+              </span>
+              <button
+                className="hidden md:block hover:underline focus-visible:underline text-gray-600 dark:text-gray-200"
+                onClick={() => signOut(auth)}
+              >
+                logout
+              </button>
 
-            <button className="md:hidden text-xl">
-              <FontAwesomeIcon
-                icon={faCog}
-                onClick={() => setExpanded(!expanded)}
-              />
-            </button>
+              <button className="md:hidden text-xl">
+                <FontAwesomeIcon
+                  icon={faCog}
+                  onClick={() => setExpanded(!expanded)}
+                />
+              </button>
+            </div>
           </div>
-        </div>
 
-        <SettingsComponent
-          cards={cards}
-          createCard={createCard}
-          expanded={expanded}
-        />
+          <SettingsComponent
+            cards={cards}
+            createCard={createCard}
+            expanded={expanded}
+          />
+        </div>
       </div>
 
       {view !== "column" && (
