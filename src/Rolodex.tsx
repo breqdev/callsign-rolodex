@@ -94,7 +94,7 @@ function ColumnView({ children }: { children: Iterable<React.ReactNode> }) {
 
   return (
     <div
-      className="flex flex-col items-center gap-4 px-[25px] overflow-x-hidden w-full overflow-y-scroll h-0 flex-grow"
+      className="flex flex-col items-center gap-4 px-4 overflow-x-hidden w-full overflow-y-scroll h-0 flex-grow"
       style={{
         perspective: "1000px",
         perspectiveOrigin: "center",
@@ -208,31 +208,37 @@ export default function Rolodex() {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="flex flex-col h-full p-4 items-stretch bg-white text-black dark:bg-black dark:text-white">
-      <div className="mt-4 flex flex-col max-w-3xl mx-auto p-4 rounded-2xl bg-gray-200 dark:bg-gray-600 font-display gap-2 w-full">
-        <div className="flex flex-row w-full justify-between">
-          <h1 className="font-mono text-4xl">rolodex</h1>
-          <div className="flex flex-row gap-2 items-center">
-            <span>{user?.email}</span>
-            <button
-              className="hover:underline focus-visible:underline text-gray-600 dark:text-gray-200"
-              onClick={() => signOut(auth)}
-            >
-              logout
-            </button>
-            <button className="md:hidden text-xl">
-              <FontAwesomeIcon
-                icon={faCog}
-                onClick={() => setExpanded(!expanded)}
-              />
-            </button>
+    <div className="flex flex-col h-full py-4 items-stretch bg-white text-black dark:bg-black dark:text-white">
+      <div className="p-4">
+        <div className="flex flex-col max-w-3xl mx-auto p-4 rounded-2xl bg-gray-200 dark:bg-gray-600 font-display gap-2 w-full">
+          <div className="flex flex-row w-full gap-3 justify-between">
+            <h1 className="font-mono text-4xl">rolodex</h1>
+            <div className="flex flex-row gap-2 items-center min-w-0">
+              <span className="text-ellipsis overflow-hidden min-w-0">
+                {user?.email}
+              </span>
+              <button
+                className="hidden md:block hover:underline focus-visible:underline text-gray-600 dark:text-gray-200"
+                onClick={() => signOut(auth)}
+              >
+                logout
+              </button>
+
+              <button className="md:hidden text-xl">
+                <FontAwesomeIcon
+                  icon={faCog}
+                  onClick={() => setExpanded(!expanded)}
+                />
+              </button>
+            </div>
           </div>
+
+          <SettingsComponent
+            cards={cards}
+            createCard={createCard}
+            expanded={expanded}
+          />
         </div>
-        <SettingsComponent
-          cards={cards}
-          createCard={createCard}
-          expanded={expanded}
-        />
       </div>
       {view !== "column" && (
         <div className="max-w-xl w-full mx-auto py-8 px-4">
@@ -254,7 +260,7 @@ export default function Rolodex() {
                 return (
                   c.callsign.toLocaleLowerCase().includes(q) ||
                   c.name?.toLocaleLowerCase().includes(q) ||
-                  c.location?.toLocaleLowerCase().includes(q) || 
+                  c.location?.toLocaleLowerCase().includes(q) ||
                   c.cardType.toLocaleLowerCase().includes(q)
                 );
               }
@@ -288,7 +294,12 @@ export default function Rolodex() {
             ))}
           <Card
             createMode
-            contact={{ name: "", callsign: "", cardType: "person", location: "" }}
+            contact={{
+              name: "",
+              callsign: "",
+              cardType: "person",
+              location: "",
+            }}
             onEdit={createCard}
             onDelete={() => {}}
             referenceType={referenceType}

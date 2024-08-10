@@ -5,6 +5,8 @@ import { Contact } from "./contact";
 import { generateJson, generateVCard, generateZip } from "./export";
 import { importJson, importVCard, importZip } from "./import";
 import THEMES from "./themes";
+import { FirebaseContext } from "./FirebaseWrapper";
+import { signOut } from "firebase/auth";
 
 const VIEWS = [
   {
@@ -155,6 +157,7 @@ export function SettingsComponent({
     theme,
     setTheme,
   } = useContext(SettingsContext);
+  const { auth } = useContext(FirebaseContext);
 
   return (
     <div className={"flex-col gap-2 md:flex " + (expanded ? "flex" : "hidden")}>
@@ -207,58 +210,67 @@ export function SettingsComponent({
           setSelected={(s) => setTheme(parseInt(s))}
         />
 
-        <button
-          className="bg-white dark:bg-black rounded-lg px-2 py-1 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
-          onClick={async () => {
-            if (cards === null) {
-              return;
-            }
-
-            const exporter =
-              exportFormat === "vcf" ? generateVCard : generateJson;
-
-            const zip = await generateZip(cards, exporter);
-            const url = URL.createObjectURL(zip);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "contacts.zip";
-            a.click();
-          }}
-        >
-          Export All
-        </button>
-
-        <button
-          className="bg-white dark:bg-black rounded-lg px-2 py-1 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
-          onClick={async () => {
-            const input = document.createElement("input");
-            input.type = "file";
-            input.accept = ".json,.vcf,.zip";
-
-            input.addEventListener("change", async () => {
-              if (input.files === null) {
+        <div className="flex flex-row gap-2 mt-1">
+          <button
+            className="w-full bg-white dark:bg-black rounded-lg px-2 py-1 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+            onClick={async () => {
+              if (cards === null) {
                 return;
               }
 
-              const file = input.files[0];
+              const exporter =
+                exportFormat === "vcf" ? generateVCard : generateJson;
 
-              if (file.name.endsWith(".vcf")) {
-                const contact = await importVCard(file);
-                createCard(contact);
-              } else if (file.name.endsWith(".json")) {
-                const contact = await importJson(file);
-                createCard(contact);
-              } else if (file.name.endsWith(".zip")) {
-                const contacts = await importZip(file);
-                contacts.forEach(createCard);
-              }
-            });
+              const zip = await generateZip(cards, exporter);
+              const url = URL.createObjectURL(zip);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = "contacts.zip";
+              a.click();
+            }}
+          >
+            Export All
+          </button>
 
-            input.click();
-          }}
-        >
-          Import...
-        </button>
+          <button
+            className="w-full bg-white dark:bg-black rounded-lg px-2 py-1 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+            onClick={async () => {
+              const input = document.createElement("input");
+              input.type = "file";
+              input.accept = ".json,.vcf,.zip";
+
+              input.addEventListener("change", async () => {
+                if (input.files === null) {
+                  return;
+                }
+
+                const file = input.files[0];
+
+                if (file.name.endsWith(".vcf")) {
+                  const contact = await importVCard(file);
+                  createCard(contact);
+                } else if (file.name.endsWith(".json")) {
+                  const contact = await importJson(file);
+                  createCard(contact);
+                } else if (file.name.endsWith(".zip")) {
+                  const contacts = await importZip(file);
+                  contacts.forEach(createCard);
+                }
+              });
+
+              input.click();
+            }}
+          >
+            Import...
+          </button>
+
+          <button
+            className="block md:hidden w-full bg-white dark:bg-black rounded-lg px-2 py-1 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+            onClick={() => signOut(auth)}
+          >
+            Log Out
+          </button>
+        </div>
       </div>
     </div>
   );
