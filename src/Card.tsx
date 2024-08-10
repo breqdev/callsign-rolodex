@@ -447,7 +447,7 @@ export default function Card({
           <div className="flex items-start gap-2">
             <div>
               <Input
-                className="font-mono text-7xl h-22 overflow-y-hidden align-text-top -my-2"
+                className="font-mono text-7xl h-22 overflow-y-hidden align-text-top -mt-4"
                 value={displayCallsign}
                 onChange={(e) =>
                   setDraftCallsign(e.target.value.toLocaleUpperCase())
