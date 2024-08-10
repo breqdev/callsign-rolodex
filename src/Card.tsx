@@ -447,7 +447,7 @@ export default function Card({
           <div className="flex items-start gap-2">
             <div>
               <Input
-                className="font-mono text-7xl h-16"
+                className="font-mono text-7xl h-16 overflow-y-hidden"
                 value={displayCallsign}
                 onChange={(e) =>
                   setDraftCallsign(e.target.value.toLocaleUpperCase())
@@ -554,7 +554,7 @@ export default function Card({
             {(editMode && draftCardType == "repeater") ||
             (!editMode && contact.cardType == "repeater") ? (
               <Input
-                className="text-3xl"
+                className="text-2xl"
                 value={displayLocation}
                 onChange={(e) => setDraftLocation(e.target.value)}
                 onKeyDown={handleInputKeyDown}
@@ -679,7 +679,7 @@ export default function Card({
             </div>
           )}
           {createMode ? (
-            <div className="flex flex-row">
+            <div className="flex flex-row z-10">
               <button
                 className="rounded border w-12 h-12 grid place-items-center"
                 style={{ borderColor: THEMES[theme].color }}
@@ -689,7 +689,7 @@ export default function Card({
               </button>
             </div>
           ) : editMode ? (
-            <div className="flex flex-row gap-2">
+            <div className="flex flex-row gap-2 z-10">
               <button
                 className="rounded border w-12 h-12 grid place-items-center"
                 style={{ borderColor: THEMES[theme].color }}
