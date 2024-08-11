@@ -213,7 +213,7 @@ export function SettingsComponent({
             name: theme.label,
             value: slug,
           }))}
-          selected={theme.toString()}
+          selected={theme.name}
           setSelected={(s) => setTheme(s)}
         />
 
