@@ -129,8 +129,7 @@ const VIEW_COMPONENTS = {
 
 export default function Rolodex() {
   const { auth, user, db } = useContext(FirebaseContext);
-  const { view, sort, referenceType, exportFormat } =
-    useContext(SettingsContext);
+  const { view, sort, referenceType } = useContext(SettingsContext);
 
   const [cards, setCards] = useState<(Contact & { id: string })[] | null>(null);
 
@@ -206,6 +205,8 @@ export default function Rolodex() {
   const [query, setQuery] = useState("");
 
   const [expanded, setExpanded] = useState(false);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selected, setSelected] = useState<Set<Contact>>(new Set());
 
   return (
     <div className="flex flex-col h-full py-4 items-stretch bg-white text-black dark:bg-black dark:text-white">
@@ -234,9 +235,11 @@ export default function Rolodex() {
           </div>
 
           <SettingsComponent
-            cards={cards}
             createCard={createCard}
             expanded={expanded}
+            selectMode={selectMode}
+            setSelectMode={setSelectMode}
+            selected={selected}
           />
         </div>
       </div>
@@ -289,7 +292,15 @@ export default function Rolodex() {
                 onDelete={makeDeleteHandler(card)}
                 referenceType={referenceType}
                 tab={tag}
-                exportFormat={exportFormat}
+                selectMode={selectMode}
+                isSelected={selected.has(card)}
+                onSelectionChange={(isSelected) => {
+                  if (isSelected) {
+                    setSelected(selected.union(new Set([card])));
+                  } else {
+                    setSelected(selected.difference(new Set([card])));
+                  }
+                }}
               />
             ))}
           <Card
@@ -303,7 +314,6 @@ export default function Rolodex() {
             onEdit={createCard}
             onDelete={() => {}}
             referenceType={referenceType}
-            exportFormat={exportFormat}
           />
         </ViewComponent>
       ) : (

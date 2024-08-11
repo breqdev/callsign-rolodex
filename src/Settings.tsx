@@ -144,13 +144,17 @@ function Dropdown<T extends string>({
 }
 
 export function SettingsComponent({
-  cards,
   createCard,
   expanded,
+  selectMode,
+  setSelectMode,
+  selected,
 }: {
-  cards: Contact[] | null;
   createCard: (c: Contact) => void;
   expanded: boolean;
+  selectMode: boolean;
+  setSelectMode: (b: boolean) => void;
+  selected: Set<Contact>;
 }) {
   const {
     view,
@@ -165,6 +169,9 @@ export function SettingsComponent({
     setTheme,
   } = useContext(SettingsContext);
   const { auth } = useContext(FirebaseContext);
+
+  const buttonClass =
+    "w-full bg-white dark:bg-black rounded-lg px-2 py-1 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors md:w-20";
 
   return (
     <div className={"flex-col gap-2 md:flex " + (expanded ? "flex" : "hidden")}>
@@ -218,58 +225,93 @@ export function SettingsComponent({
         />
 
         <div className="flex flex-row gap-2 mt-1">
-          <button
-            className="w-full bg-white dark:bg-black rounded-lg px-2 py-1 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
-            onClick={async () => {
-              if (cards === null) {
-                return;
-              }
-
-              const exporter =
-                exportFormat === "vcf" ? generateVCard : generateJson;
-
-              const zip = await generateZip(cards, exporter);
-              const url = URL.createObjectURL(zip);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = "contacts.zip";
-              a.click();
-            }}
-          >
-            Export All
-          </button>
-
-          <button
-            className="w-full bg-white dark:bg-black rounded-lg px-2 py-1 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
-            onClick={async () => {
-              const input = document.createElement("input");
-              input.type = "file";
-              input.accept = ".json,.vcf,.zip";
-
-              input.addEventListener("change", async () => {
-                if (input.files === null) {
-                  return;
+          {selectMode ? (
+            <>
+              <button
+                className={
+                  "w-full bg-red-200 dark:bg-red-800 rounded-lg px-2 py-1 hover:bg-red-300 dark:hover:bg-red-600 transition-colors md:w-20"
                 }
+                onClick={() => setSelectMode(false)}
+              >
+                Cancel
+              </button>
 
-                const file = input.files[0];
-
-                if (file.name.endsWith(".vcf")) {
-                  const contact = await importVCard(file);
-                  createCard(contact);
-                } else if (file.name.endsWith(".json")) {
-                  const contact = await importJson(file);
-                  createCard(contact);
-                } else if (file.name.endsWith(".zip")) {
-                  const contacts = await importZip(file);
-                  contacts.forEach(createCard);
+              <button
+                className={
+                  "w-full bg-green-200 disabled:bg-white dark:bg-green-800 dark:disabled:bg-black rounded-lg px-2 py-1 hover:bg-green-300 dark:hover:bg-green-600 transition-colors md:w-20"
                 }
-              });
+                disabled={selected.size === 0}
+                onClick={async () => {
+                  if (selected.size === 0) {
+                    return;
+                  } else if (selected.size === 1) {
+                    const contact: Contact = selected.values().next().value;
+                    const exporter =
+                      exportFormat === "vcf" ? generateVCard : generateJson;
+                    const blob = await exporter(contact);
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `${contact.callsign}.${exportFormat}`;
+                    a.click();
+                  } else {
+                    const exporter =
+                      exportFormat === "vcf" ? generateVCard : generateJson;
 
-              input.click();
-            }}
-          >
-            Import...
-          </button>
+                    const zip = await generateZip([...selected], exporter);
+                    const url = URL.createObjectURL(zip);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "contacts.zip";
+                    a.click();
+                  }
+                }}
+              >
+                Export {selected.size} card{selected.size === 1 ? "" : "s"}
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className={buttonClass}
+                onClick={() => setSelectMode(true)}
+              >
+                Export...
+              </button>
+
+              <button
+                className={buttonClass}
+                onClick={async () => {
+                  const input = document.createElement("input");
+                  input.type = "file";
+                  input.accept = ".json,.vcf,.zip";
+
+                  input.addEventListener("change", async () => {
+                    if (input.files === null) {
+                      return;
+                    }
+
+                    const file = input.files[0];
+
+                    if (file.name.endsWith(".vcf")) {
+                      const contact = await importVCard(file);
+                      createCard(contact);
+                    } else if (file.name.endsWith(".json")) {
+                      const contact = await importJson(file);
+                      createCard(contact);
+                    } else if (file.name.endsWith(".zip")) {
+                      const contacts = await importZip(file);
+                      contacts.forEach(createCard);
+                    }
+                  });
+
+                  input.click();
+                }}
+              >
+                Import...
+              </button>
+            </>
+          )}
 
           <button
             className="block md:hidden w-full bg-white dark:bg-black rounded-lg px-2 py-1 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"

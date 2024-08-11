@@ -1,6 +1,5 @@
 import {
   faCheck,
-  faDownload,
   faPencilAlt,
   faPlus,
   faStar as faStarSolid,
@@ -23,7 +22,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { generateJson, generateVCard } from "./export";
 import { SettingsContext } from "./Settings";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -192,7 +190,9 @@ export default function Card({
   createMode = false,
   referenceType,
   tab,
-  exportFormat,
+  selectMode,
+  isSelected,
+  onSelectionChange,
 }: {
   contact: Contact;
   onEdit: (c: Contact) => void;
@@ -200,7 +200,9 @@ export default function Card({
   createMode?: boolean;
   referenceType: "morse" | "nato";
   tab?: React.ReactNode;
-  exportFormat: "vcf" | "json";
+  selectMode?: boolean;
+  isSelected?: boolean;
+  onSelectionChange?: (state: boolean) => void;
 }) {
   const { theme } = useContext(SettingsContext);
 
@@ -686,6 +688,15 @@ export default function Card({
                 <FontAwesomeIcon icon={faPlus} className="text-3xl" />
               </button>
             </div>
+          ) : selectMode ? (
+            <div className="flex flex-row z-10">
+              <input
+                type="checkbox"
+                checked={isSelected}
+                className="rounded border border-black w-12 h-12 grid place-items-center"
+                onChange={(e) => onSelectionChange?.(e.target.checked)}
+              />
+            </div>
           ) : editMode ? (
             <div className="flex flex-row gap-2 z-10">
               <button
@@ -704,29 +715,13 @@ export default function Card({
               </button>
             </div>
           ) : (
-            <div className="flex flex-row gap-2 z-10">
+            <div className="flex flex-row z-10">
               <button
                 className="rounded border w-12 h-12 grid place-items-center"
                 style={{ borderColor: theme.color }}
                 onClick={enterEditMode}
               >
                 <FontAwesomeIcon icon={faPencilAlt} className="text-3xl" />
-              </button>
-              <button
-                className="rounded border w-12 h-12 grid place-items-center"
-                style={{ borderColor: theme.color }}
-                onClick={async () => {
-                  const exporter =
-                    exportFormat === "vcf" ? generateVCard : generateJson;
-                  const blob = await exporter(contact);
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = `${contact.callsign}.${exportFormat}`;
-                  a.click();
-                }}
-              >
-                <FontAwesomeIcon icon={faDownload} className="text-3xl" />
               </button>
             </div>
           )}
