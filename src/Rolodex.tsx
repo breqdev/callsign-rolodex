@@ -1,20 +1,13 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import Card from "./Card";
 import { Contact } from "./contact";
 import { FirebaseContext } from "./FirebaseWrapper";
 import { signOut } from "firebase/auth";
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  setDoc,
-} from "firebase/firestore";
 import SORTS from "./sorts";
 import { SettingsComponent, SettingsContext } from "./Settings";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
+import useCards from "./useCards";
 
 function GridView({ children }: { children: React.ReactNode }) {
   return (
@@ -128,77 +121,10 @@ const VIEW_COMPONENTS = {
 };
 
 export default function Rolodex() {
-  const { auth, user, db } = useContext(FirebaseContext);
+  const { auth, user } = useContext(FirebaseContext);
   const { view, sort, referenceType } = useContext(SettingsContext);
 
-  const [cards, setCards] = useState<(Contact & { id: string })[] | null>(null);
-
-  useEffect(() => {
-    getDocs(collection(db, `users/${user?.uid}/contacts`))
-      .then((snapshot) => {
-        setCards(
-          snapshot.docs.map((doc) => {
-            const data = doc.data() as Contact;
-            return {
-              ...data,
-              cardType: data.cardType !== undefined ? data.cardType : "person",
-              location: data.location !== undefined ? data.location : "",
-              id: doc.id,
-            };
-          })
-        );
-      })
-      .catch((error) => {
-        console.error("Error getting documents: ", error);
-      });
-  }, [db, user]);
-
-  const createCard = useCallback(
-    (c: Contact) => {
-      addDoc(collection(db, `users/${user?.uid}/contacts`), c)
-        .then((doc) => {
-          const card = { ...c, id: doc.id };
-          setCards(cards !== null ? [...cards, card] : null);
-        })
-        .catch((error) => {
-          console.error("Error adding document: ", error);
-        });
-    },
-    [cards, db, user]
-  );
-
-  const makeEditHandler = useCallback(
-    (old_card: Contact & { id: string }) => (new_card: Contact) => {
-      setDoc(doc(db, `users/${user?.uid}/contacts/${old_card.id}`), new_card)
-        .then(() => {
-          setCards(
-            cards?.map((card) => {
-              if (card.id === old_card.id) {
-                return { ...new_card, id: old_card.id };
-              }
-              return card;
-            }) ?? null
-          );
-        })
-        .catch((error) => {
-          console.error("Error updating document: ", error);
-        });
-    },
-    [cards, db, user]
-  );
-
-  const makeDeleteHandler = useCallback(
-    (card: Contact & { id: string }) => () => {
-      deleteDoc(doc(db, `users/${user?.uid}/contacts/${card.id}`))
-        .then(() => {
-          setCards(cards?.filter((c) => c.id !== card.id) ?? null);
-        })
-        .catch((error) => {
-          console.error("Error deleting document: ", error);
-        });
-    },
-    [cards, db, user]
-  );
+  const { cards, addCard, editCard, deleteCard } = useCards();
 
   const ViewComponent = VIEW_COMPONENTS[view] || GridView;
 
@@ -235,7 +161,7 @@ export default function Rolodex() {
           </div>
 
           <SettingsComponent
-            createCard={createCard}
+            createCard={addCard}
             expanded={expanded}
             selectMode={selectMode}
             setSelectMode={setSelectMode}
@@ -288,8 +214,8 @@ export default function Rolodex() {
               <Card
                 key={card.id}
                 contact={card}
-                onEdit={makeEditHandler(card)}
-                onDelete={makeDeleteHandler(card)}
+                onEdit={(c) => editCard(card, c)}
+                onDelete={() => deleteCard(card)}
                 referenceType={referenceType}
                 tab={tag}
                 selectMode={selectMode}
@@ -311,7 +237,7 @@ export default function Rolodex() {
               cardType: "person",
               location: "",
             }}
-            onEdit={createCard}
+            onEdit={addCard}
             onDelete={() => {}}
             referenceType={referenceType}
           />

@@ -2,8 +2,9 @@ import { FirebaseApp, initializeApp } from "firebase/app";
 import { Auth, User, getAuth, onAuthStateChanged } from "firebase/auth";
 import {
   Firestore,
-  getFirestore,
   initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
 } from "firebase/firestore";
 import React, { useEffect, useMemo, useState } from "react";
 
@@ -30,12 +31,14 @@ export default function FirebaseWrapper({
     };
 
     const app = initializeApp(firebaseConfig);
-    initializeFirestore(app, {
+    const db = initializeFirestore(app, {
       ignoreUndefinedProperties: true,
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
     });
 
     const auth = getAuth(app);
-    const db = getFirestore(app);
 
     return { app, auth, db };
   }, []);
