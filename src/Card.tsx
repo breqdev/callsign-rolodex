@@ -25,8 +25,6 @@ import {
 } from "react";
 import { generateJson, generateVCard } from "./export";
 import { SettingsContext } from "./Settings";
-import THEMES from "./themes";
-// import { height } from "@fortawesome/free-brands-svg-icons/fa42Group";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -44,7 +42,7 @@ function Field({
 
   return (
     <>
-      <span className="font-mono" style={{ color: THEMES[theme].secondary }}>
+      <span className="font-mono" style={{ color: theme.secondary }}>
         {label}
       </span>
       <span className="font-mono">{children}</span>
@@ -151,9 +149,9 @@ const Input = forwardRef<
             borderColor: disabled
               ? "transparent"
               : focus
-              ? THEMES[theme].color
+              ? theme.color
               : hover
-              ? THEMES[theme].secondary
+              ? theme.secondary
               : "transparent",
           }}
           className="absolute bottom-0 left-0 right-0 border-b-2 transition-colors z-20"
@@ -432,15 +430,15 @@ export default function Card({
     <div
       className="aspect-[85.60/53.98] relative flex-shrink-0 border-2 rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)] transition-colors duration-300"
       style={{
-        background: THEMES[theme].gradient ?? THEMES[theme].background,
-        borderColor: THEMES[theme].color,
-        color: THEMES[theme].color,
+        background: theme.gradient ?? theme.background,
+        borderColor: theme.color,
+        color: theme.color,
       }}
     >
       <div
         className="overflow-clip relative rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)] w-full h-full p-3 flex flex-col justify-between font-display z-10"
         style={{
-          background: `${THEMES[theme].color} repeating-linear-gradient(-45deg, transparent, transparent 2px, ${THEMES[theme].background} 2px, ${THEMES[theme].background} 6px)`,
+          background: `${theme.color} repeating-linear-gradient(-45deg, transparent, transparent 2px, ${theme.background} 2px, ${theme.background} 6px)`,
         }}
       >
         <div className="z-10">
@@ -476,7 +474,7 @@ export default function Card({
               {(contact.star || editMode) && (
                 <button
                   className="text-3xl"
-                  style={{ color: THEMES[theme].star }}
+                  style={{ color: theme.star }}
                   onClick={() => setDraftStar(!draftStar)}
                   disabled={!editMode}
                 >
@@ -493,8 +491,8 @@ export default function Card({
                 <div
                   className="rounded-full border-2 grid grid-rows-2 transition float-right"
                   style={{
-                    background: THEMES[theme].color,
-                    borderColor: THEMES[theme].color,
+                    background: theme.color,
+                    borderColor: theme.color,
                   }}
                 >
                   <button
@@ -502,12 +500,12 @@ export default function Card({
                     style={
                       draftCardType == "person"
                         ? {
-                            background: THEMES[theme].background,
-                            color: THEMES[theme].color,
+                            background: theme.background,
+                            color: theme.color,
                           }
                         : {
                             background: "none",
-                            color: THEMES[theme].background,
+                            color: theme.background,
                           }
                     }
                     onClick={() => setDraftCardType("person")}
@@ -519,12 +517,12 @@ export default function Card({
                     style={
                       draftCardType == "repeater"
                         ? {
-                            background: THEMES[theme].background,
-                            color: THEMES[theme].color,
+                            background: theme.background,
+                            color: theme.color,
                           }
                         : {
                             background: "none",
-                            color: THEMES[theme].background,
+                            color: theme.background,
                           }
                     }
                     onClick={() => setDraftCardType("repeater")}
@@ -682,7 +680,7 @@ export default function Card({
             <div className="flex flex-row z-10">
               <button
                 className="rounded border w-12 h-12 grid place-items-center"
-                style={{ borderColor: THEMES[theme].color }}
+                style={{ borderColor: theme.color }}
                 onClick={handleCreate}
               >
                 <FontAwesomeIcon icon={faPlus} className="text-3xl" />
@@ -692,14 +690,14 @@ export default function Card({
             <div className="flex flex-row gap-2 z-10">
               <button
                 className="rounded border w-12 h-12 grid place-items-center"
-                style={{ borderColor: THEMES[theme].color }}
+                style={{ borderColor: theme.color }}
                 onClick={exitEditMode}
               >
                 <FontAwesomeIcon icon={faCheck} className="text-3xl" />
               </button>
               <button
                 className="rounded border w-12 h-12 grid place-items-center"
-                style={{ borderColor: THEMES[theme].color }}
+                style={{ borderColor: theme.color }}
                 onClick={onDelete}
               >
                 <FontAwesomeIcon icon={faTrashAlt} className="text-3xl" />
@@ -709,14 +707,14 @@ export default function Card({
             <div className="flex flex-row gap-2 z-10">
               <button
                 className="rounded border w-12 h-12 grid place-items-center"
-                style={{ borderColor: THEMES[theme].color }}
+                style={{ borderColor: theme.color }}
                 onClick={enterEditMode}
               >
                 <FontAwesomeIcon icon={faPencilAlt} className="text-3xl" />
               </button>
               <button
                 className="rounded border w-12 h-12 grid place-items-center"
-                style={{ borderColor: THEMES[theme].color }}
+                style={{ borderColor: theme.color }}
                 onClick={async () => {
                   const exporter =
                     exportFormat === "vcf" ? generateVCard : generateJson;
@@ -741,7 +739,7 @@ export default function Card({
               : "inset-0 rounded-none")
           }
           style={{
-            background: THEMES[theme].gradient ?? THEMES[theme].background,
+            background: theme.gradient ?? theme.background,
           }}
         />
       </div>
@@ -749,8 +747,8 @@ export default function Card({
         <div
           className="absolute top-0 left-0 -mt-8 h-16 w-24  -z-10 rounded-t-2xl flex justify-center items-start"
           style={{
-            backgroundColor: THEMES[theme].tab,
-            color: THEMES[theme].tabLabel,
+            backgroundColor: theme.tab,
+            color: theme.tabLabel,
           }}
         >
           <span className="text-xl mt-px">{tab}</span>

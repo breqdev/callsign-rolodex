@@ -1,5 +1,18 @@
-const THEMES = [
-  {
+export type Theme = {
+  name: string;
+  label: string;
+  dark: boolean;
+  color: string;
+  secondary: string;
+  background: string;
+  star: string;
+  tab: string;
+  tabLabel: string;
+  gradient?: string;
+};
+
+const THEMES: Record<string, Theme> = {
+  light: {
     name: "light",
     label: "Light",
     dark: false,
@@ -10,7 +23,7 @@ const THEMES = [
     tab: "#bfdbfe",
     tabLabel: "#000000",
   },
-  {
+  dark: {
     name: "dark",
     label: "Dark",
     dark: true,
@@ -21,7 +34,7 @@ const THEMES = [
     tab: "#1e40af",
     tabLabel: "#ffffff",
   },
-  {
+  dim: {
     name: "dim",
     label: "Dim",
     dark: true,
@@ -32,7 +45,7 @@ const THEMES = [
     tab: "#1e40af",
     tabLabel: "#ffffff",
   },
-  {
+  pink: {
     name: "pink",
     label: "Pink",
     dark: false,
@@ -44,7 +57,7 @@ const THEMES = [
     tabLabel: "#fbcfe8",
   },
   // my girlfriend asked for this
-  {
+  teal: {
     name: "teal",
     label: "Teal",
     dark: true,
@@ -55,7 +68,7 @@ const THEMES = [
     tab: "#ede9fe",
     tabLabel: "#000000",
   },
-  {
+  hacker: {
     name: "hacker",
     label: "Hacker",
     dark: true,
@@ -66,7 +79,7 @@ const THEMES = [
     tab: "#bef264",
     tabLabel: "#000000",
   },
-  {
+  purple: {
     name: "purple",
     label: "Purple",
     dark: true,
@@ -77,7 +90,7 @@ const THEMES = [
     tab: "#ede9fe",
     tabLabel: "#5b21b6",
   },
-  {
+  silver: {
     name: "silver",
     label: "Silver",
     dark: false,
@@ -88,7 +101,7 @@ const THEMES = [
     tab: "#475569",
     tabLabel: "#ffffff",
   },
-  {
+  trans: {
     name: "trans",
     label: "Trans",
     dark: false,
@@ -101,7 +114,7 @@ const THEMES = [
     gradient:
       "linear-gradient(-45deg, #5BCEFA, #5BCEFA, #ffffff, #ffffff, #F5A9B8, #F5A9B8)",
   },
-  {
+  lesbian: {
     name: "lesbian",
     label: "Lesbian",
     dark: false,
@@ -114,7 +127,7 @@ const THEMES = [
     gradient:
       "linear-gradient(45deg, #d42c00, #fd9855, #ffffff, #ffffff, #d161a2, #a20161)",
   },
-  {
+  bisexual: {
     name: "bisexual",
     label: "Bisexual",
     dark: true,
@@ -126,7 +139,7 @@ const THEMES = [
     tabLabel: "#ffffff",
     gradient: "linear-gradient(45deg, #D60270, #9B4F96, #0038A8)",
   },
-  {
+  maine: {
     name: "maine",
     label: "Maine",
     dark: false,
@@ -137,7 +150,7 @@ const THEMES = [
     tab: "#bfdbfe",
     tabLabel: "#00512C",
   },
-  {
+  canada: {
     name: "canada",
     label: "Canada",
     dark: false,
@@ -149,6 +162,6 @@ const THEMES = [
     tabLabel: "#ffffff",
     gradient: "center / cover no-repeat url(/canada.svg)",
   },
-];
+};
 
 export default THEMES;

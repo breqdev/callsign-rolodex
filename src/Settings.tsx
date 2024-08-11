@@ -4,7 +4,7 @@ import SORTS from "./sorts";
 import { Contact } from "./contact";
 import { generateJson, generateVCard, generateZip } from "./export";
 import { importJson, importVCard, importZip } from "./import";
-import THEMES from "./themes";
+import THEMES, { Theme } from "./themes";
 import { FirebaseContext } from "./FirebaseWrapper";
 import { signOut } from "firebase/auth";
 
@@ -28,8 +28,8 @@ export const SettingsContext = React.createContext<{
   setReferenceType: (referenceType: "morse" | "nato") => void;
   exportFormat: "json" | "vcf";
   setExportFormat: (exportFormat: "json" | "vcf") => void;
-  theme: number;
-  setTheme: (theme: number) => void;
+  theme: Theme;
+  setTheme: (theme: string) => void;
 }>({
   view: "grid",
   setView: () => {},
@@ -39,7 +39,7 @@ export const SettingsContext = React.createContext<{
   setReferenceType: () => {},
   exportFormat: "json",
   setExportFormat: () => {},
-  theme: 0,
+  theme: THEMES["light"],
   setTheme: () => {},
 });
 
@@ -61,12 +61,12 @@ export default function SettingsProvider({
       defaultValue: "vcf",
     }
   );
-  const [theme, setTheme] = useLocalStorageState<number>("theme", {
-    defaultValue: 0,
+  const [theme, setTheme] = useLocalStorageState<string>("theme", {
+    defaultValue: "light",
   });
 
   useEffect(() => {
-    document.body.classList.toggle("dark", THEMES[theme].dark);
+    document.body.classList.toggle("dark", THEMES[theme]?.dark);
   }, [theme]);
 
   return (
@@ -80,7 +80,7 @@ export default function SettingsProvider({
         setReferenceType,
         exportFormat,
         setExportFormat,
-        theme,
+        theme: THEMES[theme] ?? THEMES["light"],
         setTheme,
       }}
     >
@@ -96,13 +96,23 @@ function Dropdown<T extends string>({
   setSelected,
 }: {
   label: string;
-  options: readonly { readonly name: string; readonly value: T; group?: string }[];
+  options: readonly {
+    readonly name: string;
+    readonly value: T;
+    group?: string;
+  }[];
   selected: T;
   setSelected: (value: T) => void;
 }) {
-  const groups = [... new Set(options.filter(a => a.group != null && a.group !== undefined).map(a => a.group))].map(a => ({
+  const groups = [
+    ...new Set(
+      options
+        .filter((a) => a.group != null && a.group !== undefined)
+        .map((a) => a.group)
+    ),
+  ].map((a) => ({
     name: a,
-    options: options.filter(b => b.group == a)
+    options: options.filter((b) => b.group == a),
   }));
 
   return (
@@ -113,8 +123,8 @@ function Dropdown<T extends string>({
         onChange={(e) => setSelected(e.target.value as T)}
         className="border-b-2 border-black dark:border-white text-xl py-1 bg-transparent"
       >
-        { groups.length > 0 ? (
-            groups.map((group) => (
+        {groups.length > 0
+          ? groups.map((group) => (
               <optgroup label={group.name}>
                 {group.options.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -123,14 +133,11 @@ function Dropdown<T extends string>({
                 ))}
               </optgroup>
             ))
-        ) : (
-          options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.name}
-            </option>
-          ))
-        )}
-        
+          : options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.name}
+              </option>
+            ))}
       </select>
     </div>
   );
@@ -181,10 +188,10 @@ export function SettingsComponent({
 
         <Dropdown
           label="Sort by"
-          options={Object.entries(SORTS).map((s, i) => ({ 
-              name: s[0], 
-              value: i.toString(),
-              group: s[1].group
+          options={Object.entries(SORTS).map((s, i) => ({
+            name: s[0],
+            value: i.toString(),
+            group: s[1].group,
           }))}
           selected={sort.toString()}
           setSelected={(s) => setSort(parseInt(s))}
@@ -202,12 +209,12 @@ export function SettingsComponent({
 
         <Dropdown
           label="Theme"
-          options={THEMES.map((t, i) => ({
-            name: t.label,
-            value: i.toString(),
+          options={Object.entries(THEMES).map(([slug, theme]) => ({
+            name: theme.label,
+            value: slug,
           }))}
           selected={theme.toString()}
-          setSelected={(s) => setTheme(parseInt(s))}
+          setSelected={(s) => setTheme(s)}
         />
 
         <div className="flex flex-row gap-2 mt-1">
