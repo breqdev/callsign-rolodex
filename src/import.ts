@@ -8,7 +8,8 @@ export async function importVCard(file: File): Promise<Contact> {
   const contact: Partial<Contact> = {};
 
   for (const line of lines) {
-    const [key, value] = line.split(":");
+    const [key, ...rest] = line.split(":");
+    const value = rest.join(":");
     switch (key) {
       case "FN":
         contact.name = value;
@@ -36,20 +37,28 @@ export async function importVCard(file: File): Promise<Contact> {
       case "ADR":
         contact.location = value;
         break;
-      case "X-REPEATER-INFO":
-        const [frequency, offset, txToneMode, txTone, rxToneMode, rxTone] = value.split(";");
-        
+      case "X-REPEATER-INFO": {
+        const [frequency, offset, txToneMode, txTone, rxToneMode, rxTone] =
+          value.split(";");
+
         contact.frequency = frequency != "" ? parseFloat(frequency) : undefined;
         contact.offset = offset != "" ? parseFloat(offset) : undefined;
         contact.txTone = txTone != "" ? parseFloat(txTone) : undefined;
         contact.rxTone = rxTone != "" ? parseFloat(rxTone) : undefined;
-        contact.txToneMode = txToneMode != "" 
-          ? txToneMode == "DCS" ? "DCS" : "CTCSS"
-          : undefined;
-        contact.rxToneMode = rxToneMode != "" 
-          ? rxToneMode == "DCS" ? "DCS" : "CTCSS"
-          : undefined;
+        contact.txToneMode =
+          txToneMode != ""
+            ? txToneMode == "DCS"
+              ? "DCS"
+              : "CTCSS"
+            : undefined;
+        contact.rxToneMode =
+          rxToneMode != ""
+            ? rxToneMode == "DCS"
+              ? "DCS"
+              : "CTCSS"
+            : undefined;
         break;
+      }
     }
   }
 

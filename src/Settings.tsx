@@ -265,6 +265,8 @@ export function SettingsComponent({
                     a.download = "contacts.zip";
                     a.click();
                   }
+
+                  setSelectMode(false);
                 }}
               >
                 Export {selected.length} card{selected.length === 1 ? "" : "s"}

@@ -34,7 +34,7 @@ export default function useCards() {
     );
 
     return unsub;
-  });
+  }, [db, user]);
 
   const addCard = useCallback(
     (c: Contact) => {

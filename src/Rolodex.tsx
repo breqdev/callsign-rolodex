@@ -7,12 +7,16 @@ import { SettingsComponent, SettingsContext } from "./Settings";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
 import useCards from "./useCards";
+import Footer from "./Footer";
 
 function GridView({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,350px)] gap-4 py-4 justify-center">
-      {children}
-    </div>
+    <>
+      <div className="grid grid-cols-[repeat(auto-fit,350px)] gap-4 py-4 justify-center">
+        {children}
+      </div>
+      <Footer />
+    </>
   );
 }
 
