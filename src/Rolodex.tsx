@@ -1,6 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import Card from "./Card";
-import { Contact } from "./contact";
 import { FirebaseContext } from "./FirebaseWrapper";
 import { signOut } from "firebase/auth";
 import SORTS from "./sorts";
@@ -132,7 +131,7 @@ export default function Rolodex() {
 
   const [expanded, setExpanded] = useState(false);
   const [selectMode, setSelectMode] = useState(false);
-  const [selected, setSelected] = useState<Set<Contact>>(new Set());
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   return (
     <div className="flex flex-col h-full py-4 items-stretch bg-white text-black dark:bg-black dark:text-white">
@@ -165,7 +164,7 @@ export default function Rolodex() {
             expanded={expanded}
             selectMode={selectMode}
             setSelectMode={setSelectMode}
-            selected={selected}
+            selected={cards?.filter((c) => selected.has(c.id)) || []}
           />
         </div>
       </div>
@@ -219,12 +218,12 @@ export default function Rolodex() {
                 referenceType={referenceType}
                 tab={tag}
                 selectMode={selectMode}
-                isSelected={selected.has(card)}
+                isSelected={selected.has(card.id)}
                 onSelectionChange={(isSelected) => {
                   if (isSelected) {
-                    setSelected(selected.union(new Set([card])));
+                    setSelected(selected.union(new Set([card.id])));
                   } else {
-                    setSelected(selected.difference(new Set([card])));
+                    setSelected(selected.difference(new Set([card.id])));
                   }
                 }}
               />

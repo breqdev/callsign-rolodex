@@ -154,7 +154,7 @@ export function SettingsComponent({
   expanded: boolean;
   selectMode: boolean;
   setSelectMode: (b: boolean) => void;
-  selected: Set<Contact>;
+  selected: Contact[];
 }) {
   const {
     view,
@@ -240,11 +240,11 @@ export function SettingsComponent({
                 className={
                   "w-full bg-green-200 disabled:bg-white dark:bg-green-800 dark:disabled:bg-black rounded-lg px-2 py-1 hover:bg-green-300 dark:hover:bg-green-600 transition-colors md:w-20"
                 }
-                disabled={selected.size === 0}
+                disabled={selected.length === 0}
                 onClick={async () => {
-                  if (selected.size === 0) {
+                  if (selected.length === 0) {
                     return;
-                  } else if (selected.size === 1) {
+                  } else if (selected.length === 1) {
                     const contact: Contact = selected.values().next().value;
                     const exporter =
                       exportFormat === "vcf" ? generateVCard : generateJson;
@@ -267,7 +267,7 @@ export function SettingsComponent({
                   }
                 }}
               >
-                Export {selected.size} card{selected.size === 1 ? "" : "s"}
+                Export {selected.length} card{selected.length === 1 ? "" : "s"}
               </button>
             </>
           ) : (
