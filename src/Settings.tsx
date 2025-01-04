@@ -2,7 +2,15 @@ import React, { useContext, useEffect } from "react";
 import useLocalStorageState from "use-local-storage-state";
 import SORTS from "./sorts";
 import { Contact } from "./contact";
-import { generateJson, generateVCard, generateZip } from "./export";
+import {
+  generateCsvChirp,
+  generateCsvGD77Channels,
+  generateCsvGD77Contacts,
+  generateCsvGD77Zip,
+  generateJson,
+  generateVCard,
+  generateZip,
+} from "./export";
 import { importJson, importVCard, importZip } from "./import";
 import THEMES, { Theme } from "./themes";
 import { FirebaseContext } from "./FirebaseWrapper";
@@ -28,8 +36,8 @@ export const SettingsContext = React.createContext<{
   setSort: (sort: number) => void;
   referenceType: "morse" | "nato";
   setReferenceType: (referenceType: "morse" | "nato") => void;
-  exportFormat: "json" | "vcf";
-  setExportFormat: (exportFormat: "json" | "vcf") => void;
+  exportFormat: "json" | "vcf" | "chirp" | "gd77";
+  setExportFormat: (exportFormat: "json" | "vcf" | "chirp" | "gd77") => void;
   theme: Theme;
   setTheme: (theme: string) => void;
 }>({
@@ -64,12 +72,11 @@ export default function SettingsProvider({
   const [referenceType, setReferenceType] = useLocalStorageState<
     "morse" | "nato"
   >("referenceType", { defaultValue: "morse" });
-  const [exportFormat, setExportFormat] = useLocalStorageState<"vcf" | "json">(
-    "exportFormat",
-    {
-      defaultValue: "vcf",
-    }
-  );
+  const [exportFormat, setExportFormat] = useLocalStorageState<
+    "vcf" | "json" | "chirp" | "gd77"
+  >("exportFormat", {
+    defaultValue: "vcf",
+  });
   const [theme, setTheme] = useLocalStorageState<string>("theme", {
     defaultValue: "light",
   });
@@ -233,6 +240,8 @@ export function SettingsComponent({
           options={[
             { name: "vCard", value: "vcf" },
             { name: "JSON", value: "json" },
+            { name: "CHIRP", value: "chirp" },
+            { name: "GD77", value: "gd77" },
           ]}
           selected={exportFormat}
           setSelected={setExportFormat}
@@ -270,23 +279,66 @@ export function SettingsComponent({
                     return;
                   } else if (selected.length === 1) {
                     const contact: Contact = selected.values().next().value!;
-                    const exporter =
-                      exportFormat === "vcf" ? generateVCard : generateJson;
+
+                    let exporter: (c: Contact) => Promise<Blob>;
+                    if (exportFormat === "vcf") {
+                      exporter = generateVCard;
+                    } else if (exportFormat === "json") {
+                      exporter = generateJson;
+                    } else if (exportFormat === "chirp") {
+                      exporter = (c) => generateCsvChirp([c]);
+                    } else if (exportFormat === "gd77") {
+                      if (selected[0].cardType === "person") {
+                        exporter = (c) => generateCsvGD77Contacts([c]);
+                      } else {
+                        exporter = (c) => generateCsvGD77Channels([c]);
+                      }
+                    } else {
+                      throw Error(`Unknown exporter ${exportFormat}`);
+                    }
+
                     const blob = await exporter(contact);
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement("a");
                     a.href = url;
-                    a.download = `${contact.callsign}.${exportFormat}`;
+                    const extension =
+                      exportFormat === "chirp" ? "csv" : exportFormat;
+                    a.download = `${contact.callsign}.${extension}`;
                     a.click();
                   } else {
-                    const exporter =
-                      exportFormat === "vcf" ? generateVCard : generateJson;
+                    let exporter: (c: Contact[]) => Promise<Blob>;
+                    let extension = "zip";
 
-                    const zip = await generateZip([...selected], exporter);
-                    const url = URL.createObjectURL(zip);
+                    if (exportFormat === "vcf") {
+                      exporter = (c) => generateZip([...c], generateVCard);
+                    } else if (exportFormat === "json") {
+                      exporter = (c) => generateZip([...c], generateJson);
+                    } else if (exportFormat === "chirp") {
+                      exporter = generateCsvChirp;
+                      extension = "csv";
+                    } else if (exportFormat === "gd77") {
+                      if (
+                        selected.every((card) => card.cardType === "person")
+                      ) {
+                        exporter = generateCsvGD77Contacts;
+                        extension = "csv";
+                      } else if (
+                        selected.every((card) => card.cardType === "repeater")
+                      ) {
+                        exporter = generateCsvGD77Channels;
+                        extension = "csv";
+                      } else {
+                        exporter = generateCsvGD77Zip;
+                      }
+                    } else {
+                      throw Error(`Unknown exporter ${exportFormat}`);
+                    }
+
+                    const file = await exporter(selected);
+                    const url = URL.createObjectURL(file);
                     const a = document.createElement("a");
                     a.href = url;
-                    a.download = "contacts.zip";
+                    a.download = `contacts.${extension}`;
                     a.click();
                   }
 
@@ -310,7 +362,7 @@ export function SettingsComponent({
                 onClick={async () => {
                   const input = document.createElement("input");
                   input.type = "file";
-                  input.accept = ".json,.vcf,.zip";
+                  input.accept = ".json,.vcf,.zip,.csv";
 
                   input.addEventListener("change", async () => {
                     if (input.files === null) {
