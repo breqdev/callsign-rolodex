@@ -702,16 +702,16 @@ export default function Card({
               <button
                 className="rounded border w-12 h-12 grid place-items-center"
                 style={{ borderColor: theme.color }}
-                onClick={exitEditMode}
+                onClick={onDelete}
               >
-                <FontAwesomeIcon icon={faCheck} className="text-3xl" />
+                <FontAwesomeIcon icon={faTrashAlt} className="text-3xl" />
               </button>
               <button
                 className="rounded border w-12 h-12 grid place-items-center"
                 style={{ borderColor: theme.color }}
-                onClick={onDelete}
+                onClick={exitEditMode}
               >
-                <FontAwesomeIcon icon={faTrashAlt} className="text-3xl" />
+                <FontAwesomeIcon icon={faCheck} className="text-3xl" />
               </button>
             </div>
           ) : (

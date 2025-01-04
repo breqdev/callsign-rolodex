@@ -22,7 +22,9 @@ const VIEWS = [
 export const SettingsContext = React.createContext<{
   view: "grid" | "column";
   setView: (view: "grid" | "column") => void;
-  sort: number;
+  filter: "person" | "repeater" | "all";
+  setFilter: (filter: "person" | "repeater" | "all") => void;
+  sort: number | null;
   setSort: (sort: number) => void;
   referenceType: "morse" | "nato";
   setReferenceType: (referenceType: "morse" | "nato") => void;
@@ -33,6 +35,8 @@ export const SettingsContext = React.createContext<{
 }>({
   view: "grid",
   setView: () => {},
+  filter: "all",
+  setFilter: () => {},
   sort: 0,
   setSort: () => {},
   referenceType: "morse",
@@ -52,6 +56,11 @@ export default function SettingsProvider({
     defaultValue: "grid",
   });
   const [sort, setSort] = useLocalStorageState("sort", { defaultValue: 0 });
+  const [filter, setFilter] = useLocalStorageState<
+    "person" | "repeater" | "all"
+  >("filter", {
+    defaultValue: "all",
+  });
   const [referenceType, setReferenceType] = useLocalStorageState<
     "morse" | "nato"
   >("referenceType", { defaultValue: "morse" });
@@ -74,6 +83,8 @@ export default function SettingsProvider({
       value={{
         view,
         setView,
+        filter,
+        setFilter,
         sort,
         setSort,
         referenceType,
@@ -159,6 +170,8 @@ export function SettingsComponent({
   const {
     view,
     setView,
+    filter,
+    setFilter,
     sort,
     setSort,
     referenceType,
@@ -194,13 +207,24 @@ export function SettingsComponent({
         />
 
         <Dropdown
+          label="Show"
+          options={[
+            { name: "Individuals", value: "person" },
+            { name: "Repeaters", value: "repeater" },
+            { name: "All", value: "all" },
+          ]}
+          selected={filter}
+          setSelected={setFilter}
+        />
+
+        <Dropdown
           label="Sort by"
           options={Object.entries(SORTS).map((s, i) => ({
             name: s[0],
             value: i.toString(),
             group: s[1].group,
           }))}
-          selected={sort.toString()}
+          selected={(sort ?? 0).toString()}
           setSelected={(s) => setSort(parseInt(s))}
         />
 
@@ -245,7 +269,7 @@ export function SettingsComponent({
                   if (selected.length === 0) {
                     return;
                   } else if (selected.length === 1) {
-                    const contact: Contact = selected.values().next().value;
+                    const contact: Contact = selected.values().next().value!;
                     const exporter =
                       exportFormat === "vcf" ? generateVCard : generateJson;
                     const blob = await exporter(contact);
