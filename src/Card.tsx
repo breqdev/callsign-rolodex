@@ -23,6 +23,7 @@ import {
   useState,
 } from "react";
 import { SettingsContext } from "./Settings";
+import THEMES from "./themes";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -91,7 +92,7 @@ const Input = forwardRef<
   HTMLInputElement,
   {
     value: string;
-    className: string;
+    className?: string;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
     placeholder: string;
@@ -134,7 +135,9 @@ const Input = forwardRef<
     return (
       <div className="relative">
         <input
-          className={className + " bg-transparent outline-none peer w-full"}
+          className={
+            (className ?? "") + " bg-transparent outline-none peer w-full"
+          }
           value={value}
           onChange={onChange}
           onKeyDown={onKeyDown}
@@ -632,7 +635,6 @@ export default function Card({
                   {createMode || editMode ? (
                     <div className="w-36">
                       <Input
-                        className="text-lg"
                         value={draftWebsite}
                         onChange={(e) => setDraftWebsite(e.target.value)}
                         onKeyDown={handleInputKeyDown}
@@ -724,6 +726,29 @@ export default function Card({
           }}
         >
           <span className="text-xl mt-px">{tab}</span>
+        </div>
+      )}
+      {(createMode || editMode) && (
+        <div
+          className="z-20 absolute bottom-0 left-0 right-0 h-13 -mb-9 pt-4 -mx-0.5 rounded-b-2xl border-x-2 border-b-2 text-lg overflow-clip font-display"
+          style={{
+            borderColor: theme[variant].color,
+          }}
+        >
+          <div className="bg-white px-2 pb-0.5 w-full">
+            Theme:{" "}
+            <select
+              value={theme.label}
+              // onChange={(e) => setSelected(e.target.value as T)}
+              className="py-1 bg-transparent"
+            >
+              {Object.values(THEMES).map((theme) => (
+                <option key={theme.name} value={theme.name}>
+                  {theme.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       )}
     </div>
