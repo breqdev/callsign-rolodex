@@ -207,7 +207,7 @@ export default function Card({
   isSelected?: boolean;
   onSelectionChange?: (state: boolean) => void;
 }) {
-  const { theme, variant } = useContext(SettingsContext);
+  const { variant } = useContext(SettingsContext);
 
   const { data: dmr } = useSWR(
     contact
@@ -227,9 +227,14 @@ export default function Card({
   const [draftStar, setDraftStar] = useState(false);
   const [draftFrequency, setDraftFrequency] = useState("");
   const [draftOffset, setDraftOffset] = useState("");
+  const [draftTheme, setDraftTheme] = useState("");
 
   const [draftRxTone, setDraftRxTone] = useState("");
   const [draftTxTone, setDraftTxTone] = useState("");
+
+  const activeThemeName =
+    editMode || createMode ? draftTheme : contact.theme ?? "default";
+  const theme = THEMES[activeThemeName] ?? THEMES["default"];
 
   const enterEditMode = useCallback(() => {
     setEditMode(true);
@@ -243,6 +248,7 @@ export default function Card({
     setDraftRxTone(formatTone(contact?.rxTone, contact?.rxToneMode));
     setDraftTxTone(formatTone(contact?.txTone, contact?.txToneMode));
     setDraftStar(contact?.star || false);
+    setDraftTheme(contact?.theme ?? "default");
   }, [contact]);
 
   const exitEditMode = useCallback(() => {
@@ -264,6 +270,7 @@ export default function Card({
         name: draftName,
         location: draftLocation,
         website,
+        theme: draftTheme,
       });
     } else {
       const rxTone = parseTone(draftRxTone);
@@ -283,6 +290,7 @@ export default function Card({
         txTone: txTone.value,
         rxToneMode: rxTone.type,
         txToneMode: txTone.type,
+        theme: draftTheme,
       });
     }
   }, [
@@ -296,6 +304,7 @@ export default function Card({
     draftOffset,
     draftRxTone,
     draftTxTone,
+    draftTheme,
     onEdit,
   ]);
 
@@ -308,6 +317,7 @@ export default function Card({
         name: draftName,
         location: draftLocation,
         website: draftWebsite || undefined,
+        theme: draftTheme,
       });
     } else {
       const rxTone = parseTone(draftRxTone);
@@ -327,6 +337,7 @@ export default function Card({
         txTone: txTone.value,
         rxToneMode: rxTone.type,
         txToneMode: txTone.type,
+        theme: draftTheme,
       });
     }
 
@@ -351,6 +362,7 @@ export default function Card({
     draftOffset,
     draftRxTone,
     draftTxTone,
+    draftTheme,
     onEdit,
   ]);
 
@@ -735,11 +747,11 @@ export default function Card({
             borderColor: theme[variant].color,
           }}
         >
-          <div className="bg-white px-2 pb-0.5 w-full">
+          <div className="bg-white dark:bg-black px-2 pb-0.5 w-full">
             Theme:{" "}
             <select
-              value={theme.label}
-              // onChange={(e) => setSelected(e.target.value as T)}
+              value={editMode ? draftTheme : contact.theme ?? "light"}
+              onChange={(e) => setDraftTheme(e.target.value)}
               className="py-1 bg-transparent"
             >
               {Object.values(THEMES).map((theme) => (
