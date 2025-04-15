@@ -12,7 +12,6 @@ import {
   generateZip,
 } from "./export";
 import { importJson, importVCard, importZip } from "./import";
-import THEMES, { ThemePair } from "./themes";
 import { FirebaseContext } from "./FirebaseWrapper";
 import { signOut } from "firebase/auth";
 
@@ -38,8 +37,6 @@ export const SettingsContext = React.createContext<{
   setReferenceType: (referenceType: "morse" | "nato") => void;
   exportFormat: "json" | "vcf" | "chirp" | "gd77";
   setExportFormat: (exportFormat: "json" | "vcf" | "chirp" | "gd77") => void;
-  theme: ThemePair;
-  setTheme: (theme: string) => void;
   variant: "light" | "dark";
   setVariant: (variant: "light" | "dark") => void;
 }>({
@@ -53,8 +50,6 @@ export const SettingsContext = React.createContext<{
   setReferenceType: () => {},
   exportFormat: "json",
   setExportFormat: () => {},
-  theme: THEMES["default"],
-  setTheme: () => {},
   variant: "light",
   setVariant: () => {},
 });
@@ -81,9 +76,6 @@ export default function SettingsProvider({
   >("exportFormat", {
     defaultValue: "vcf",
   });
-  const [theme, setTheme] = useLocalStorageState<string>("theme", {
-    defaultValue: "default",
-  });
   const [variant, setVariant] = useLocalStorageState<"light" | "dark">(
     "variant",
     {
@@ -108,8 +100,6 @@ export default function SettingsProvider({
         setReferenceType,
         exportFormat,
         setExportFormat,
-        theme: THEMES[theme] ?? THEMES["default"],
-        setTheme,
         variant: variant ?? "light",
         setVariant,
       }}
@@ -197,8 +187,6 @@ export function SettingsComponent({
     setReferenceType,
     exportFormat,
     setExportFormat,
-    theme,
-    setTheme,
     variant,
     setVariant,
   } = useContext(SettingsContext);
@@ -263,16 +251,6 @@ export function SettingsComponent({
 
         <Dropdown
           label="Theme"
-          options={Object.entries(THEMES).map(([slug, theme]) => ({
-            name: theme.label,
-            value: slug,
-          }))}
-          selected={theme.name}
-          setSelected={(s) => setTheme(s)}
-        />
-
-        <Dropdown
-          label="Variant"
           options={[
             {
               name: "Light",

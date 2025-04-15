@@ -23,7 +23,7 @@ import {
   useState,
 } from "react";
 import { SettingsContext } from "./Settings";
-import THEMES from "./themes";
+import THEMES, { ThemePair } from "./themes";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -31,13 +31,15 @@ const TONE_TRAILING = 1;
 const FREQ_TRAILING = 4;
 
 function Field({
+  theme,
   label,
   children,
 }: {
+  theme: ThemePair;
   label: string;
   children: React.ReactNode;
 }) {
-  const { theme, variant } = useContext(SettingsContext);
+  const { variant } = useContext(SettingsContext);
 
   return (
     <>
@@ -97,13 +99,14 @@ const Input = forwardRef<
     onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
     placeholder: string;
     disabled: boolean;
+    theme: ThemePair;
   }
 >(
   (
-    { value, className, onChange, onKeyDown, placeholder, disabled },
+    { value, className, onChange, onKeyDown, placeholder, disabled, theme },
     outerRef
   ) => {
-    const { theme, variant } = useContext(SettingsContext);
+    const { variant } = useContext(SettingsContext);
 
     const innerRef = useRef<HTMLInputElement>(null);
     useImperativeHandle(outerRef, () => innerRef.current!, []);
@@ -448,6 +451,7 @@ export default function Card({
                 placeholder="call"
                 disabled={!editMode}
                 ref={firstInput}
+                theme={theme}
               />
               {referenceType == "morse" && (
                 <p className="font-morse text-base select-none flex flex-row gap-2 -my-1 ml-0.5 z-10 h-7">
@@ -541,6 +545,7 @@ export default function Card({
                 onKeyDown={handleInputKeyDown}
                 placeholder="name"
                 disabled={!editMode}
+                theme={theme}
               />
             ) : null}
             {(editMode && draftCardType == "repeater") ||
@@ -552,6 +557,7 @@ export default function Card({
                 onKeyDown={handleInputKeyDown}
                 placeholder="location"
                 disabled={!editMode}
+                theme={theme}
               />
             ) : null}
           </div>
@@ -570,6 +576,7 @@ export default function Card({
                   onKeyDown={handleInputKeyDown}
                   placeholder="frequency"
                   disabled={!editMode}
+                  theme={theme}
                 />
               ) : (
                 <div />
@@ -584,6 +591,7 @@ export default function Card({
                   onKeyDown={handleInputKeyDown}
                   placeholder="offset"
                   disabled={!editMode}
+                  theme={theme}
                 />
               ) : (
                 <div />
@@ -605,6 +613,7 @@ export default function Card({
                     onKeyDown={handleInputKeyDown}
                     placeholder=""
                     disabled={!editMode}
+                    theme={theme}
                   />
                 </div>
               ) : (
@@ -625,6 +634,7 @@ export default function Card({
                     onKeyDown={handleInputKeyDown}
                     placeholder=""
                     disabled={!editMode}
+                    theme={theme}
                   />
                 </div>
               ) : null}
@@ -632,7 +642,7 @@ export default function Card({
           ) : (
             <div className="-mb-1 grid grid-cols-[2.1rem,1fr] z-10">
               {dmr?.count ? (
-                <Field label="DMR">
+                <Field label="DMR" theme={theme}>
                   <a
                     href={`https://radioid.net/database/view?id=${dmr.results[0].id}`}
                     target="_blank"
@@ -643,7 +653,7 @@ export default function Card({
                 </Field>
               ) : null}
               {(contact.website || editMode) && (
-                <Field label="WEB">
+                <Field label="WEB" theme={theme}>
                   {createMode || editMode ? (
                     <div className="w-36">
                       <Input
@@ -652,6 +662,7 @@ export default function Card({
                         onKeyDown={handleInputKeyDown}
                         placeholder=""
                         disabled={!editMode}
+                        theme={theme}
                       />
                     </div>
                   ) : (
