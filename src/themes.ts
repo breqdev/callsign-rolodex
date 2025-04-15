@@ -120,12 +120,12 @@ const THEMES: Record<string, ThemePair> = {
     name: "purple",
     label: "Purple",
     light: {
-      color: "#ede9fe",
+      color: "#5b21b6",
       secondary: "#c4b5fd",
-      background: "#5b21b6",
-      star: "#ede9fe",
-      tab: "#ede9fe",
-      tabLabel: "#5b21b6",
+      background: "#ede9fe",
+      star: "#5b21b6",
+      tab: "#5b21b6",
+      tabLabel: "#ede9fe",
     },
     dark: {
       color: "#ede9fe",
