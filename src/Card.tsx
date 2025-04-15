@@ -23,6 +23,7 @@ import {
   useState,
 } from "react";
 import { SettingsContext } from "./Settings";
+import THEMES, { ThemePair } from "./themes";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -30,17 +31,19 @@ const TONE_TRAILING = 1;
 const FREQ_TRAILING = 4;
 
 function Field({
+  theme,
   label,
   children,
 }: {
+  theme: ThemePair;
   label: string;
   children: React.ReactNode;
 }) {
-  const { theme } = useContext(SettingsContext);
+  const { variant } = useContext(SettingsContext);
 
   return (
     <>
-      <span className="font-mono" style={{ color: theme.secondary }}>
+      <span className="font-mono" style={{ color: theme[variant].secondary }}>
         {label}
       </span>
       <span className="font-mono">{children}</span>
@@ -91,18 +94,19 @@ const Input = forwardRef<
   HTMLInputElement,
   {
     value: string;
-    className: string;
+    className?: string;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
     placeholder: string;
     disabled: boolean;
+    theme: ThemePair;
   }
 >(
   (
-    { value, className, onChange, onKeyDown, placeholder, disabled },
+    { value, className, onChange, onKeyDown, placeholder, disabled, theme },
     outerRef
   ) => {
-    const { theme } = useContext(SettingsContext);
+    const { variant } = useContext(SettingsContext);
 
     const innerRef = useRef<HTMLInputElement>(null);
     useImperativeHandle(outerRef, () => innerRef.current!, []);
@@ -134,7 +138,9 @@ const Input = forwardRef<
     return (
       <div className="relative">
         <input
-          className={className + " bg-transparent outline-none peer w-full"}
+          className={
+            (className ?? "") + " bg-transparent outline-none peer w-full"
+          }
           value={value}
           onChange={onChange}
           onKeyDown={onKeyDown}
@@ -147,9 +153,9 @@ const Input = forwardRef<
             borderColor: disabled
               ? "transparent"
               : focus
-              ? theme.color
+              ? theme[variant].color
               : hover
-              ? theme.secondary
+              ? theme[variant].secondary
               : "transparent",
           }}
           className="absolute bottom-0 left-0 right-0 border-b-2 transition-colors z-20"
@@ -204,7 +210,7 @@ export default function Card({
   isSelected?: boolean;
   onSelectionChange?: (state: boolean) => void;
 }) {
-  const { theme } = useContext(SettingsContext);
+  const { variant } = useContext(SettingsContext);
 
   const { data: dmr } = useSWR(
     contact
@@ -224,9 +230,14 @@ export default function Card({
   const [draftStar, setDraftStar] = useState(false);
   const [draftFrequency, setDraftFrequency] = useState("");
   const [draftOffset, setDraftOffset] = useState("");
+  const [draftTheme, setDraftTheme] = useState("");
 
   const [draftRxTone, setDraftRxTone] = useState("");
   const [draftTxTone, setDraftTxTone] = useState("");
+
+  const activeThemeName =
+    editMode || createMode ? draftTheme : contact.theme ?? "default";
+  const theme = THEMES[activeThemeName] ?? THEMES["default"];
 
   const enterEditMode = useCallback(() => {
     setEditMode(true);
@@ -240,6 +251,7 @@ export default function Card({
     setDraftRxTone(formatTone(contact?.rxTone, contact?.rxToneMode));
     setDraftTxTone(formatTone(contact?.txTone, contact?.txToneMode));
     setDraftStar(contact?.star || false);
+    setDraftTheme(contact?.theme ?? "default");
   }, [contact]);
 
   const exitEditMode = useCallback(() => {
@@ -261,6 +273,7 @@ export default function Card({
         name: draftName,
         location: draftLocation,
         website,
+        theme: draftTheme,
       });
     } else {
       const rxTone = parseTone(draftRxTone);
@@ -280,6 +293,7 @@ export default function Card({
         txTone: txTone.value,
         rxToneMode: rxTone.type,
         txToneMode: txTone.type,
+        theme: draftTheme,
       });
     }
   }, [
@@ -293,6 +307,7 @@ export default function Card({
     draftOffset,
     draftRxTone,
     draftTxTone,
+    draftTheme,
     onEdit,
   ]);
 
@@ -305,6 +320,7 @@ export default function Card({
         name: draftName,
         location: draftLocation,
         website: draftWebsite || undefined,
+        theme: draftTheme,
       });
     } else {
       const rxTone = parseTone(draftRxTone);
@@ -324,6 +340,7 @@ export default function Card({
         txTone: txTone.value,
         rxToneMode: rxTone.type,
         txToneMode: txTone.type,
+        theme: draftTheme,
       });
     }
 
@@ -348,6 +365,7 @@ export default function Card({
     draftOffset,
     draftRxTone,
     draftTxTone,
+    draftTheme,
     onEdit,
   ]);
 
@@ -405,42 +423,19 @@ export default function Card({
     [createMode, handleCreate, exitEditMode]
   );
 
-  // useEffect(() => {
-  //   if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-  //     setDark(true);
-  //   }
-
-  //   const listener = (e: MediaQueryListEvent) => {
-  //     if (e.matches) {
-  //       setDark(true);
-  //     } else {
-  //       setDark(false);
-  //     }
-  //   };
-
-  //   window
-  //     .matchMedia("(prefers-color-scheme: dark)")
-  //     .addEventListener("change", listener);
-
-  //   return () =>
-  //     window
-  //       .matchMedia("(prefers-color-scheme: dark)")
-  //       .removeEventListener("change", listener);
-  // }, []);
-
   return (
     <div
       className="aspect-[85.60/53.98] relative flex-shrink-0 border-2 rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)] transition-colors duration-300"
       style={{
-        background: theme.gradient ?? theme.background,
-        borderColor: theme.color,
-        color: theme.color,
+        background: theme[variant].gradient ?? theme[variant].background,
+        borderColor: theme[variant].color,
+        color: theme[variant].color,
       }}
     >
       <div
         className="overflow-clip relative rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)] w-full h-full p-3 flex flex-col justify-between font-display z-10"
         style={{
-          background: `${theme.color} repeating-linear-gradient(-45deg, transparent, transparent 2px, ${theme.background} 2px, ${theme.background} 6px)`,
+          background: `${theme[variant].color} repeating-linear-gradient(-45deg, transparent, transparent 2px, ${theme[variant].background} 2px, ${theme[variant].background} 6px)`,
         }}
       >
         <div className="z-10">
@@ -456,6 +451,7 @@ export default function Card({
                 placeholder="call"
                 disabled={!editMode}
                 ref={firstInput}
+                theme={theme}
               />
               {referenceType == "morse" && (
                 <p className="font-morse text-base select-none flex flex-row gap-2 -my-1 ml-0.5 z-10 h-7">
@@ -476,7 +472,7 @@ export default function Card({
               {(contact.star || editMode) && (
                 <button
                   className="text-3xl"
-                  style={{ color: theme.star }}
+                  style={{ color: theme[variant].star }}
                   onClick={() => setDraftStar(!draftStar)}
                   disabled={!editMode}
                 >
@@ -493,8 +489,8 @@ export default function Card({
                 <div
                   className="rounded-full border-2 grid grid-rows-2 transition float-right"
                   style={{
-                    background: theme.color,
-                    borderColor: theme.color,
+                    background: theme[variant].color,
+                    borderColor: theme[variant].color,
                   }}
                 >
                   <button
@@ -502,12 +498,12 @@ export default function Card({
                     style={
                       draftCardType == "person"
                         ? {
-                            background: theme.background,
-                            color: theme.color,
+                            background: theme[variant].background,
+                            color: theme[variant].color,
                           }
                         : {
                             background: "none",
-                            color: theme.background,
+                            color: theme[variant].background,
                           }
                     }
                     onClick={() => setDraftCardType("person")}
@@ -519,12 +515,12 @@ export default function Card({
                     style={
                       draftCardType == "repeater"
                         ? {
-                            background: theme.background,
-                            color: theme.color,
+                            background: theme[variant].background,
+                            color: theme[variant].color,
                           }
                         : {
                             background: "none",
-                            color: theme.background,
+                            color: theme[variant].background,
                           }
                     }
                     onClick={() => setDraftCardType("repeater")}
@@ -549,6 +545,7 @@ export default function Card({
                 onKeyDown={handleInputKeyDown}
                 placeholder="name"
                 disabled={!editMode}
+                theme={theme}
               />
             ) : null}
             {(editMode && draftCardType == "repeater") ||
@@ -560,6 +557,7 @@ export default function Card({
                 onKeyDown={handleInputKeyDown}
                 placeholder="location"
                 disabled={!editMode}
+                theme={theme}
               />
             ) : null}
           </div>
@@ -578,6 +576,7 @@ export default function Card({
                   onKeyDown={handleInputKeyDown}
                   placeholder="frequency"
                   disabled={!editMode}
+                  theme={theme}
                 />
               ) : (
                 <div />
@@ -592,6 +591,7 @@ export default function Card({
                   onKeyDown={handleInputKeyDown}
                   placeholder="offset"
                   disabled={!editMode}
+                  theme={theme}
                 />
               ) : (
                 <div />
@@ -613,6 +613,7 @@ export default function Card({
                     onKeyDown={handleInputKeyDown}
                     placeholder=""
                     disabled={!editMode}
+                    theme={theme}
                   />
                 </div>
               ) : (
@@ -633,6 +634,7 @@ export default function Card({
                     onKeyDown={handleInputKeyDown}
                     placeholder=""
                     disabled={!editMode}
+                    theme={theme}
                   />
                 </div>
               ) : null}
@@ -640,7 +642,7 @@ export default function Card({
           ) : (
             <div className="-mb-1 grid grid-cols-[2.1rem,1fr] z-10">
               {dmr?.count ? (
-                <Field label="DMR">
+                <Field label="DMR" theme={theme}>
                   <a
                     href={`https://radioid.net/database/view?id=${dmr.results[0].id}`}
                     target="_blank"
@@ -651,16 +653,16 @@ export default function Card({
                 </Field>
               ) : null}
               {(contact.website || editMode) && (
-                <Field label="WEB">
+                <Field label="WEB" theme={theme}>
                   {createMode || editMode ? (
                     <div className="w-36">
                       <Input
-                        className="text-lg"
                         value={draftWebsite}
                         onChange={(e) => setDraftWebsite(e.target.value)}
                         onKeyDown={handleInputKeyDown}
                         placeholder=""
                         disabled={!editMode}
+                        theme={theme}
                       />
                     </div>
                   ) : (
@@ -682,7 +684,7 @@ export default function Card({
             <div className="flex flex-row z-10">
               <button
                 className="rounded border w-12 h-12 grid place-items-center"
-                style={{ borderColor: theme.color }}
+                style={{ borderColor: theme[variant].color }}
                 onClick={handleCreate}
               >
                 <FontAwesomeIcon icon={faPlus} className="text-3xl" />
@@ -701,14 +703,14 @@ export default function Card({
             <div className="flex flex-row gap-2 z-10">
               <button
                 className="rounded border w-12 h-12 grid place-items-center"
-                style={{ borderColor: theme.color }}
+                style={{ borderColor: theme[variant].color }}
                 onClick={onDelete}
               >
                 <FontAwesomeIcon icon={faTrashAlt} className="text-3xl" />
               </button>
               <button
                 className="rounded border w-12 h-12 grid place-items-center"
-                style={{ borderColor: theme.color }}
+                style={{ borderColor: theme[variant].color }}
                 onClick={exitEditMode}
               >
                 <FontAwesomeIcon icon={faCheck} className="text-3xl" />
@@ -718,7 +720,7 @@ export default function Card({
             <div className="flex flex-row z-10">
               <button
                 className="rounded border w-12 h-12 grid place-items-center"
-                style={{ borderColor: theme.color }}
+                style={{ borderColor: theme[variant].color }}
                 onClick={enterEditMode}
               >
                 <FontAwesomeIcon icon={faPencilAlt} className="text-3xl" />
@@ -734,19 +736,42 @@ export default function Card({
               : "inset-0 rounded-none")
           }
           style={{
-            background: theme.gradient ?? theme.background,
+            background: theme[variant].gradient ?? theme[variant].background,
           }}
         />
       </div>
       {tab && (
         <div
-          className="absolute top-0 left-0 -mt-8 h-16 w-24  -z-10 rounded-t-2xl flex justify-center items-start"
+          className="absolute top-0 left-0 -mt-8 h-16 w-24 -z-10 rounded-t-2xl flex justify-center items-start"
           style={{
-            backgroundColor: theme.tab,
-            color: theme.tabLabel,
+            backgroundColor: theme[variant].tab,
+            color: theme[variant].tabLabel,
           }}
         >
           <span className="text-xl mt-px">{tab}</span>
+        </div>
+      )}
+      {(createMode || editMode) && (
+        <div
+          className="z-20 absolute bottom-0 left-0 right-0 h-13 -mb-9 pt-4 -mx-0.5 rounded-b-2xl border-x-2 border-b-2 text-lg overflow-clip font-display"
+          style={{
+            borderColor: theme[variant].color,
+          }}
+        >
+          <div className="bg-white dark:bg-black px-2 pb-0.5 w-full">
+            Theme:{" "}
+            <select
+              value={editMode ? draftTheme : contact.theme ?? "light"}
+              onChange={(e) => setDraftTheme(e.target.value)}
+              className="py-1 bg-transparent"
+            >
+              {Object.values(THEMES).map((theme) => (
+                <option key={theme.name} value={theme.name}>
+                  {theme.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       )}
     </div>
