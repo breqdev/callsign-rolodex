@@ -4,6 +4,7 @@ import {
   faWalkieTalkie,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Fragment } from "react";
 
 const ATTRIBUTION = [
   { name: "K9BRQ", url: "https://breq.dev/" },
@@ -23,16 +24,12 @@ export default function Footer() {
         <p className="font-display">
           <span className="font-mono">rolodex</span> is written by{" "}
           {ATTRIBUTION.map((a) => (
-            <>
-              <a
-                href={a.url}
-                key={a.name}
-                className="font-bold hover:underline font-mono"
-              >
+            <Fragment key={a.name}>
+              <a href={a.url} className="font-bold hover:underline font-mono">
                 {a.name}
               </a>
               {", "}
-            </>
+            </Fragment>
           ))}
           and their friends. its software is licensed under the{" "}
           <a

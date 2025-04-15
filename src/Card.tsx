@@ -36,11 +36,11 @@ function Field({
   label: string;
   children: React.ReactNode;
 }) {
-  const { theme } = useContext(SettingsContext);
+  const { theme, variant } = useContext(SettingsContext);
 
   return (
     <>
-      <span className="font-mono" style={{ color: theme.secondary }}>
+      <span className="font-mono" style={{ color: theme[variant].secondary }}>
         {label}
       </span>
       <span className="font-mono">{children}</span>
@@ -102,7 +102,7 @@ const Input = forwardRef<
     { value, className, onChange, onKeyDown, placeholder, disabled },
     outerRef
   ) => {
-    const { theme } = useContext(SettingsContext);
+    const { theme, variant } = useContext(SettingsContext);
 
     const innerRef = useRef<HTMLInputElement>(null);
     useImperativeHandle(outerRef, () => innerRef.current!, []);
@@ -147,9 +147,9 @@ const Input = forwardRef<
             borderColor: disabled
               ? "transparent"
               : focus
-              ? theme.color
+              ? theme[variant].color
               : hover
-              ? theme.secondary
+              ? theme[variant].secondary
               : "transparent",
           }}
           className="absolute bottom-0 left-0 right-0 border-b-2 transition-colors z-20"
@@ -204,7 +204,7 @@ export default function Card({
   isSelected?: boolean;
   onSelectionChange?: (state: boolean) => void;
 }) {
-  const { theme } = useContext(SettingsContext);
+  const { theme, variant } = useContext(SettingsContext);
 
   const { data: dmr } = useSWR(
     contact
@@ -405,42 +405,19 @@ export default function Card({
     [createMode, handleCreate, exitEditMode]
   );
 
-  // useEffect(() => {
-  //   if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-  //     setDark(true);
-  //   }
-
-  //   const listener = (e: MediaQueryListEvent) => {
-  //     if (e.matches) {
-  //       setDark(true);
-  //     } else {
-  //       setDark(false);
-  //     }
-  //   };
-
-  //   window
-  //     .matchMedia("(prefers-color-scheme: dark)")
-  //     .addEventListener("change", listener);
-
-  //   return () =>
-  //     window
-  //       .matchMedia("(prefers-color-scheme: dark)")
-  //       .removeEventListener("change", listener);
-  // }, []);
-
   return (
     <div
       className="aspect-[85.60/53.98] relative flex-shrink-0 border-2 rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)] transition-colors duration-300"
       style={{
-        background: theme.gradient ?? theme.background,
-        borderColor: theme.color,
-        color: theme.color,
+        background: theme[variant].gradient ?? theme[variant].background,
+        borderColor: theme[variant].color,
+        color: theme[variant].color,
       }}
     >
       <div
         className="overflow-clip relative rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)] w-full h-full p-3 flex flex-col justify-between font-display z-10"
         style={{
-          background: `${theme.color} repeating-linear-gradient(-45deg, transparent, transparent 2px, ${theme.background} 2px, ${theme.background} 6px)`,
+          background: `${theme[variant].color} repeating-linear-gradient(-45deg, transparent, transparent 2px, ${theme[variant].background} 2px, ${theme[variant].background} 6px)`,
         }}
       >
         <div className="z-10">
@@ -476,7 +453,7 @@ export default function Card({
               {(contact.star || editMode) && (
                 <button
                   className="text-3xl"
-                  style={{ color: theme.star }}
+                  style={{ color: theme[variant].star }}
                   onClick={() => setDraftStar(!draftStar)}
                   disabled={!editMode}
                 >
@@ -493,8 +470,8 @@ export default function Card({
                 <div
                   className="rounded-full border-2 grid grid-rows-2 transition float-right"
                   style={{
-                    background: theme.color,
-                    borderColor: theme.color,
+                    background: theme[variant].color,
+                    borderColor: theme[variant].color,
                   }}
                 >
                   <button
@@ -502,12 +479,12 @@ export default function Card({
                     style={
                       draftCardType == "person"
                         ? {
-                            background: theme.background,
-                            color: theme.color,
+                            background: theme[variant].background,
+                            color: theme[variant].color,
                           }
                         : {
                             background: "none",
-                            color: theme.background,
+                            color: theme[variant].background,
                           }
                     }
                     onClick={() => setDraftCardType("person")}
@@ -519,12 +496,12 @@ export default function Card({
                     style={
                       draftCardType == "repeater"
                         ? {
-                            background: theme.background,
-                            color: theme.color,
+                            background: theme[variant].background,
+                            color: theme[variant].color,
                           }
                         : {
                             background: "none",
-                            color: theme.background,
+                            color: theme[variant].background,
                           }
                     }
                     onClick={() => setDraftCardType("repeater")}
@@ -682,7 +659,7 @@ export default function Card({
             <div className="flex flex-row z-10">
               <button
                 className="rounded border w-12 h-12 grid place-items-center"
-                style={{ borderColor: theme.color }}
+                style={{ borderColor: theme[variant].color }}
                 onClick={handleCreate}
               >
                 <FontAwesomeIcon icon={faPlus} className="text-3xl" />
@@ -701,14 +678,14 @@ export default function Card({
             <div className="flex flex-row gap-2 z-10">
               <button
                 className="rounded border w-12 h-12 grid place-items-center"
-                style={{ borderColor: theme.color }}
+                style={{ borderColor: theme[variant].color }}
                 onClick={onDelete}
               >
                 <FontAwesomeIcon icon={faTrashAlt} className="text-3xl" />
               </button>
               <button
                 className="rounded border w-12 h-12 grid place-items-center"
-                style={{ borderColor: theme.color }}
+                style={{ borderColor: theme[variant].color }}
                 onClick={exitEditMode}
               >
                 <FontAwesomeIcon icon={faCheck} className="text-3xl" />
@@ -718,7 +695,7 @@ export default function Card({
             <div className="flex flex-row z-10">
               <button
                 className="rounded border w-12 h-12 grid place-items-center"
-                style={{ borderColor: theme.color }}
+                style={{ borderColor: theme[variant].color }}
                 onClick={enterEditMode}
               >
                 <FontAwesomeIcon icon={faPencilAlt} className="text-3xl" />
@@ -734,16 +711,16 @@ export default function Card({
               : "inset-0 rounded-none")
           }
           style={{
-            background: theme.gradient ?? theme.background,
+            background: theme[variant].gradient ?? theme[variant].background,
           }}
         />
       </div>
       {tab && (
         <div
-          className="absolute top-0 left-0 -mt-8 h-16 w-24  -z-10 rounded-t-2xl flex justify-center items-start"
+          className="absolute top-0 left-0 -mt-8 h-16 w-24 -z-10 rounded-t-2xl flex justify-center items-start"
           style={{
-            backgroundColor: theme.tab,
-            color: theme.tabLabel,
+            backgroundColor: theme[variant].tab,
+            color: theme[variant].tabLabel,
           }}
         >
           <span className="text-xl mt-px">{tab}</span>

@@ -12,7 +12,7 @@ import {
   generateZip,
 } from "./export";
 import { importJson, importVCard, importZip } from "./import";
-import THEMES, { Theme } from "./themes";
+import THEMES, { ThemePair } from "./themes";
 import { FirebaseContext } from "./FirebaseWrapper";
 import { signOut } from "firebase/auth";
 
@@ -38,8 +38,10 @@ export const SettingsContext = React.createContext<{
   setReferenceType: (referenceType: "morse" | "nato") => void;
   exportFormat: "json" | "vcf" | "chirp" | "gd77";
   setExportFormat: (exportFormat: "json" | "vcf" | "chirp" | "gd77") => void;
-  theme: Theme;
+  theme: ThemePair;
   setTheme: (theme: string) => void;
+  variant: "light" | "dark";
+  setVariant: (variant: "light" | "dark") => void;
 }>({
   view: "grid",
   setView: () => {},
@@ -51,8 +53,10 @@ export const SettingsContext = React.createContext<{
   setReferenceType: () => {},
   exportFormat: "json",
   setExportFormat: () => {},
-  theme: THEMES["light"],
+  theme: THEMES["default"],
   setTheme: () => {},
+  variant: "light",
+  setVariant: () => {},
 });
 
 export default function SettingsProvider({
@@ -78,12 +82,18 @@ export default function SettingsProvider({
     defaultValue: "vcf",
   });
   const [theme, setTheme] = useLocalStorageState<string>("theme", {
-    defaultValue: "light",
+    defaultValue: "default",
   });
+  const [variant, setVariant] = useLocalStorageState<"light" | "dark">(
+    "variant",
+    {
+      defaultValue: "light",
+    }
+  );
 
   useEffect(() => {
-    document.body.classList.toggle("dark", THEMES[theme]?.dark);
-  }, [theme]);
+    document.body.classList.toggle("dark", variant === "dark");
+  }, [variant]);
 
   return (
     <SettingsContext.Provider
@@ -98,8 +108,10 @@ export default function SettingsProvider({
         setReferenceType,
         exportFormat,
         setExportFormat,
-        theme: THEMES[theme] ?? THEMES["light"],
+        theme: THEMES[theme] ?? THEMES["default"],
         setTheme,
+        variant: variant ?? "light",
+        setVariant,
       }}
     >
       {children}
@@ -143,7 +155,7 @@ function Dropdown<T extends string>({
       >
         {groups.length > 0
           ? groups.map((group) => (
-              <optgroup label={group.name}>
+              <optgroup label={group.name} key={group.name}>
                 {group.options.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.name}
@@ -187,6 +199,8 @@ export function SettingsComponent({
     setExportFormat,
     theme,
     setTheme,
+    variant,
+    setVariant,
   } = useContext(SettingsContext);
   const { auth } = useContext(FirebaseContext);
 
@@ -255,6 +269,22 @@ export function SettingsComponent({
           }))}
           selected={theme.name}
           setSelected={(s) => setTheme(s)}
+        />
+
+        <Dropdown
+          label="Variant"
+          options={[
+            {
+              name: "Light",
+              value: "light",
+            },
+            {
+              name: "Dark",
+              value: "dark",
+            },
+          ]}
+          selected={variant}
+          setSelected={(s) => setVariant(s)}
         />
 
         <div className="flex flex-row gap-2 mt-1">
