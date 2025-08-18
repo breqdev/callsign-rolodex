@@ -28,6 +28,9 @@ export async function importVCard(file: File): Promise<Contact> {
       case "X-CALLSIGN":
         contact.callsign = value;
         break;
+      case "X-THEME":
+        contact.theme = value;
+        break;
       case "X-CARD-TYPE":
         if (value != "repeater" && value != "person") {
           console.error(`unknown card type '${value}`);

@@ -17,6 +17,8 @@ export async function generateVCard(c: Contact) {
   vcf += `X-CALLSIGN:${c.callsign}\n`;
   vcf += `X-STATION-TYPE:${c.cardType}\n`;
 
+  vcf += `X-THEME:${c.theme}\n`;
+
   // this is hopefully not that wrong
   if (c.cardType == "repeater") {
     vcf += `FN:${c.callsign}\n`;
