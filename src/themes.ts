@@ -15,6 +15,9 @@ export type ThemePair = {
   dark: Theme;
 };
 
+const imageBg = (src: string, bg?: string) =>
+  `center / cover no-repeat url('${src}')${bg ? ", " + bg : ""}`;
+
 const THEMES: Record<string, ThemePair> = {
   default: {
     name: "default",
@@ -256,7 +259,7 @@ const THEMES: Record<string, ThemePair> = {
       star: "#d52b1e",
       tab: "#d52b1e",
       tabLabel: "#ffffff",
-      gradient: "center / cover no-repeat url(/canada.svg)",
+      gradient: imageBg("/canada.svg"),
     },
     dark: {
       color: "#000000",
@@ -265,7 +268,51 @@ const THEMES: Record<string, ThemePair> = {
       star: "#d52b1e",
       tab: "#d52b1e",
       tabLabel: "#ffffff",
-      gradient: "center / cover no-repeat url(/canada.svg)",
+      gradient: imageBg("/canada.svg"),
+    },
+  },
+  bunny: {
+    name: "bunny",
+    label: "Bunny",
+    light: {
+      color: "#000000",
+      secondary: "#feafb0",
+      background: "#ffffff",
+      star: "#feafb0",
+      tab: "#feafb0",
+      tabLabel: "#ffffff",
+      gradient: imageBg("/bunny.svg", "#ffffff"),
+    },
+    dark: {
+      color: "#ffffff",
+      secondary: "#feafb0",
+      background: "#000000",
+      star: "#feafb0",
+      tab: "#feafb0",
+      tabLabel: "#ec4899",
+      gradient: imageBg("/bunny.svg", "#000000"),
+    },
+  },
+  turtle: {
+    name: "turtle",
+    label: "Turtle",
+    light: {
+      color: "#000000",
+      secondary: "#49731d",
+      background: "#ffffff",
+      star: "#49731d",
+      tab: "#49731d",
+      tabLabel: "#ffffff",
+      gradient: imageBg("/turtle.svg", "#bef089"),
+    },
+    dark: {
+      color: "#ffffff",
+      secondary: "#d1d5db",
+      background: "#000000",
+      star: "#ffffff",
+      tab: "#ffffff",
+      tabLabel: "#ec4899",
+      gradient: imageBg("/turtle.svg", "#000000"),
     },
   },
 };
