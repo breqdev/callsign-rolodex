@@ -13,7 +13,7 @@ const ATTRIBUTION = [
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-gray-200 text-black dark:bg-gray-800 dark:text-white mt-8">
+    <footer className="w-full bg-gray-200 text-black dark:bg-gray-800 dark:text-white mt-8 print:hidden">
       <div className="max-w-3xl w-full mx-auto px-4 py-16 flex flex-col gap-2 ">
         <h2 className="text-2xl font-mono">
           <span className="font-bold">rolodex.</span> made with{" "}

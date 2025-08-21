@@ -425,7 +425,10 @@ export default function Card({
 
   return (
     <div
-      className="aspect-[85.60/53.98] relative flex-shrink-0 border-2 rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)] transition-colors duration-300"
+      className={
+        "aspect-[85.60/53.98] relative flex-shrink-0 border-2 rounded-[calc(100%*3/85.60)/calc(100%*3/53.98)] transition-colors duration-300 " +
+        (createMode ? "print:hidden" : "")
+      }
       style={{
         background: theme[variant].gradient ?? theme[variant].background,
         borderColor: theme[variant].color,

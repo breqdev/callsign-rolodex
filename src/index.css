@@ -26,3 +26,9 @@ body,
 .font-mono {
   font-feature-settings: "zero", "cv16", "cv18";
 }
+
+@media print {
+  body {
+    zoom: 65%;
+  }
+}

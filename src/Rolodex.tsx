@@ -138,9 +138,9 @@ export default function Rolodex() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   return (
-    <div className="flex flex-col h-full py-4 items-stretch bg-white text-black dark:bg-black dark:text-white">
-      <div className="p-4">
-        <div className="flex flex-col max-w-4xl mx-auto p-4 rounded-2xl bg-gray-200 dark:bg-gray-600 font-display gap-2 w-full">
+    <div className="flex flex-col h-full py-4 print:py-0 items-stretch bg-white text-black dark:bg-black dark:text-white">
+      <div className="p-4 print:p-0">
+        <div className="flex flex-col max-w-4xl mx-auto p-4 rounded-2xl bg-gray-200 dark:bg-gray-600 font-display gap-2 w-full print:hidden">
           <div className="flex flex-row w-full gap-3 justify-between items-start">
             <h1 className="font-mono text-4xl">rolodex</h1>
             <div className="flex flex-row gap-2 items-center min-w-0">
@@ -173,7 +173,7 @@ export default function Rolodex() {
         </div>
       </div>
       {view !== "column" && (
-        <div className="max-w-xl w-full mx-auto py-8 px-4">
+        <div className="max-w-xl w-full mx-auto py-8 px-4 print:hidden">
           <input
             className="w-full text-7xl font-mono border-b-4 outline-none bg-white dark:bg-black border-gray-200 dark:border-gray-600  hover:border-black focus:border-black hover:dark:border-white focus:dark:border-white transition-colors"
             placeholder="search"
