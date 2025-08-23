@@ -684,7 +684,7 @@ export default function Card({
             </div>
           )}
           {createMode ? (
-            <div className="flex flex-row z-10">
+            <div className="flex flex-row z-10 print:hidden">
               <button
                 className="rounded border w-12 h-12 grid place-items-center"
                 style={{ borderColor: theme[variant].color }}
@@ -694,7 +694,7 @@ export default function Card({
               </button>
             </div>
           ) : selectMode ? (
-            <div className="flex flex-row z-10">
+            <div className="flex flex-row z-10 print:hidden">
               <input
                 type="checkbox"
                 checked={isSelected}
@@ -703,7 +703,7 @@ export default function Card({
               />
             </div>
           ) : editMode ? (
-            <div className="flex flex-row gap-2 z-10">
+            <div className="flex flex-row gap-2 z-10 print:hidden">
               <button
                 className="rounded border w-12 h-12 grid place-items-center"
                 style={{ borderColor: theme[variant].color }}
@@ -720,7 +720,7 @@ export default function Card({
               </button>
             </div>
           ) : (
-            <div className="flex flex-row z-10">
+            <div className="flex flex-row z-10 print:hidden">
               <button
                 className="rounded border w-12 h-12 grid place-items-center"
                 style={{ borderColor: theme[variant].color }}
@@ -756,7 +756,7 @@ export default function Card({
       )}
       {(createMode || editMode) && (
         <div
-          className="z-20 absolute bottom-0 left-0 right-0 h-13 -mb-9 pt-4 -mx-0.5 rounded-b-2xl border-x-2 border-b-2 text-lg overflow-clip font-display"
+          className="z-20 absolute bottom-0 left-0 right-0 h-13 -mb-9 pt-4 -mx-0.5 rounded-b-2xl border-x-2 border-b-2 text-lg overflow-clip font-display print:hidden"
           style={{
             borderColor: theme[variant].color,
           }}
