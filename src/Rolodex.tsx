@@ -186,7 +186,11 @@ export default function Rolodex() {
         <ViewComponent>
           {cards
             .filter(
-              filter === "all" ? () => true : (c) => c.cardType === filter
+              filter === "all"
+                ? () => true
+                : filter === "starred"
+                ? (c) => c.star
+                : (c) => c.cardType === filter
             )
             .sort(SORTS[Object.keys(SORTS)[sort ?? 0]].impl)
             .filter((c) => {

@@ -29,8 +29,8 @@ const VIEWS = [
 export const SettingsContext = React.createContext<{
   view: "grid" | "column";
   setView: (view: "grid" | "column") => void;
-  filter: "person" | "repeater" | "all";
-  setFilter: (filter: "person" | "repeater" | "all") => void;
+  filter: "person" | "repeater" | "starred" | "all";
+  setFilter: (filter: "person" | "repeater" | "starred" | "all") => void;
   sort: number | null;
   setSort: (sort: number) => void;
   referenceType: "morse" | "nato";
@@ -64,7 +64,7 @@ export default function SettingsProvider({
   });
   const [sort, setSort] = useLocalStorageState("sort", { defaultValue: 0 });
   const [filter, setFilter] = useLocalStorageState<
-    "person" | "repeater" | "all"
+    "person" | "repeater" | "starred" | "all"
   >("filter", {
     defaultValue: "all",
   });
@@ -220,6 +220,7 @@ export function SettingsComponent({
           options={[
             { name: "Individuals", value: "person" },
             { name: "Repeaters", value: "repeater" },
+            { name: "Starred", value: "starred" },
             { name: "All", value: "all" },
           ]}
           selected={filter}
