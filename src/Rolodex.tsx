@@ -175,7 +175,7 @@ export default function Rolodex() {
       {view !== "column" && (
         <div className="max-w-xl w-full mx-auto py-8 px-4 print:hidden">
           <input
-            className="w-full text-7xl font-mono border-b-4 outline-none bg-white dark:bg-black border-gray-200 dark:border-gray-600  hover:border-black focus:border-black hover:dark:border-white focus:dark:border-white transition-colors"
+            className="w-full text-6xl font-mono border-b-4 outline-none bg-white dark:bg-black border-gray-200 dark:border-gray-600  hover:border-black focus:border-black hover:dark:border-white focus:dark:border-white transition-colors"
             placeholder="search"
             value={query}
             onChange={(e) => setQuery(e.target.value.toLocaleUpperCase())}
